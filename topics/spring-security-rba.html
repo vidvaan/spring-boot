@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT CRUD Application with Role-Based Authentication</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <main>
+        <section>
+            <h2>Role-Based Authentication</h2>
+            <p>To enable role-based authentication, update the <code>SecurityFilterChain</code> configuration in the <code>SecurityConfig</code> class:</p>
+            <pre><code>
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {
+
+    private final JwtRequestFilter jwtRequestFilter;
+    private final CustomUserDetailsService userDetailsService;
+
+    public SecurityConfig(JwtRequestFilter jwtRequestFilter, CustomUserDetailsService userDetailsService) {
+        this.jwtRequestFilter = jwtRequestFilter;
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/register", "/login").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        return authenticationManagerBuilder.build();
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>JWT Token with Roles</h2>
+            <p>The JWT token includes user roles in the claims:</p>
+            <pre><code>
+@Component
+public class JwtUtil {
+    private final String SECRET_KEY = "my_secret_key";
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Role-Based Annotations</h2>
+            <p>Restrict access to endpoints using <code>@PreAuthorize</code>:</p>
+            <pre><code>
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public String addProduct(@RequestBody String product) {
+        return "Product added: " + product;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public String updateProduct(@PathVariable Long id, @RequestBody String product) {
+        return "Product updated: " + product;
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public String deleteProduct(@PathVariable Long id) {
+        return "Product deleted with ID: " + id;
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @GetMapping
+    public List<String> getAllProducts() {
+        return List.of("Product1", "Product2", "Product3");
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Testing Role-Based Authentication</h2>
+            <ul>
+                <li>Register users with roles <code>ROLE_USER</code> or <code>ROLE_ADMIN</code> using the <code>/register</code> endpoint.</li>
+                <li>Log in using <code>/login</code> to receive a JWT token.</li>
+                <li>Use the token to test:
+                    <ul>
+                        <li><code>/products</code>: Accessible by <code>USER</code> and <code>ADMIN</code>.</li>
+                        <li><code>/products/{id}</code>: Accessible only by <code>ADMIN</code>.</li>
+                        <li><code>/admin/**</code>: Accessible only by <code>ADMIN</code>.</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

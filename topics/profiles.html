@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot Environments and Profiles</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <main>
+        <section>
+            <h1>Environments for Testing Spring Boot Applications</h1>
+            <p>When developing a Spring Boot application, it is essential to set up multiple environments to ensure smooth functionality and performance across different stages of the software development lifecycle. The most common environments include:</p>
+            <ul>
+                <li><strong>Development (dev):</strong> Used by developers for writing and testing code. This environment usually has mock or local configurations and does not connect to production systems.</li>
+                <li><strong>Testing (test):</strong> Dedicated to testing the application by the QA team. This environment often mirrors production in structure but uses test data.</li>
+                <li><strong>User Acceptance Testing (UAT):</strong> Used by end-users or stakeholders to validate that the application meets business requirements. It often closely resembles the production environment.</li>
+                <li><strong>Production (prod):</strong> The live environment where the application is available to end-users. This environment must be highly secure, reliable, and performant.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Spring Profiles</h2>
+            <p>Spring Profiles provide a way to segregate parts of your application configuration and make it available only in certain environments. By using profiles, you can load specific configurations based on the active environment.</p>
+            <p>For example, you can define different database configurations for <code>dev</code>, <code>test</code>, <code>uat</code>, and <code>prod</code> profiles, ensuring the correct setup is used in each environment.</p>
+        </section>
+
+        <section>
+            <h2>Spring Boot Profiles and Environment-Specific Configurations</h2>
+            <p>Spring Boot simplifies environment-specific configurations by supporting <code>application.properties</code> and <code>application.yml</code> files. You can create separate configuration files for each profile.</p>
+
+            <h3>Using <code>application.properties</code></h3>
+            <p>Create environment-specific properties files like:</p>
+            <ul>
+                <li><code>application-dev.properties</code></li>
+                <li><code>application-test.properties</code></li>
+                <li><code>application-uat.properties</code></li>
+                <li><code>application-prod.properties</code></li>
+            </ul>
+            <p>Example: <code>application-dev.properties</code></p>
+            <pre>
+server.port=8081
+database.url=jdbc:mysql://localhost:3306/dev_db
+database.username=dev_user
+database.password=dev_password
+            </pre>
+
+            <h3>Using <code>application.yml</code></h3>
+            <p>You can define multiple profiles in a single <code>application.yml</code> file:</p>
+            <pre>
+spring:
+  profiles:
+    active: dev
+---
+spring:
+  profiles: dev
+server:
+  port: 8081
+database:
+  url: jdbc:mysql://localhost:3306/dev_db
+  username: dev_user
+  password: dev_password
+---
+spring:
+  profiles: test
+server:
+  port: 8082
+database:
+  url: jdbc:mysql://localhost:3306/test_db
+  username: test_user
+  password: test_password
+---
+spring:
+  profiles: prod
+server:
+  port: 8080
+database:
+  url: jdbc:mysql://prod-server:3306/prod_db
+  username: prod_user
+  password: prod_password
+            </pre>
+
+            <h3>Activating Profiles</h3>
+            <p>To activate a specific profile, use one of the following methods:</p>
+            <ul>
+                <li>Set the <code>spring.profiles.active</code> property in <code>application.properties</code> or <code>application.yml</code>.</li>
+                <li>Pass the profile as a command-line argument: <code>java -Dspring.profiles.active=prod -jar app.jar</code>.</li>
+                <li>Set an environment variable: <code>SPRING_PROFILES_ACTIVE=prod</code>.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Real-Time Use Cases</h2>
+            <ul>
+                <li><strong>Development:</strong> Local debugging and integration testing using lightweight databases like H2 or SQLite.</li>
+                <li><strong>Testing:</strong> Simulating production-like scenarios with extensive logging and test datasets.</li>
+                <li><strong>UAT:</strong> Ensuring stakeholders can validate functionality before deployment.</li>
+                <li><strong>Production:</strong> Secure and high-performance setup with monitoring and error reporting enabled.</li>
+            </ul>
+        </section>
+
+        <section>
+          <h2>How to Change Profiles at Deployment in Spring Boot</h2>
+          <p>Spring Boot allows you to use profiles to separate configurations for different environments (e.g., dev, test, uat, prod). Here's how to change the profile during deployment:</p>
+      </section>
+
+      <section>
+          <h3>1. Using Command-Line Arguments</h3>
+          <p>Specify the profile by passing <code>--spring.profiles.active</code> as a parameter when running the JAR file:</p>
+          <pre>
+<code>
+java -jar my-application.jar --spring.profiles.active=dev
+</code>
+          </pre>
+          <p>This activates the <code>dev</code> profile, loading configurations from <code>application-dev.properties</code> or <code>application-dev.yml</code>.</p>
+      </section>
+
+      <section>
+          <h3>2. Using Environment Variables</h3>
+          <p>Set the <code>SPRING_PROFILES_ACTIVE</code> environment variable before starting the application.</p>
+
+          <h4>Linux/Mac:</h4>
+          <pre>
+<code>
+export SPRING_PROFILES_ACTIVE=uat
+java -jar my-application.jar
+</code>
+          </pre>
+
+          <h4>Windows (Command Prompt):</h4>
+          <pre>
+<code>
+set SPRING_PROFILES_ACTIVE=uat
+java -jar my-application.jar
+</code>
+          </pre>
+
+          <h4>Windows (PowerShell):</h4>
+          <pre>
+<code>
+$env:SPRING_PROFILES_ACTIVE="uat"
+java -jar my-application.jar
+</code>
+          </pre>
+      </section>
+
+      <section>
+          <h3>3. Using JVM System Properties</h3>
+          <p>Pass the profile as a JVM system property using the <code>-D</code> option:</p>
+          <pre>
+<code>
+java -Dspring.profiles.active=prod -jar my-application.jar
+</code>
+          </pre>
+      </section>
+
+      <section>
+          <h3>4. Using Application Servers (Tomcat, Kubernetes, Docker)</h3>
+
+          <h4>In Docker:</h4>
+          <p>Add the environment variable in the <code>Dockerfile</code> or <code>docker-compose.yml</code>:</p>
+          <pre>
+<code>
+# In docker-compose.yml
+environment:
+- SPRING_PROFILES_ACTIVE=prod
+</code>
+          </pre>
+
+          <h4>In Kubernetes:</h4>
+          <p>Set the profile in the <code>ConfigMap</code> or deployment YAML:</p>
+          <pre>
+<code>
+# In deployment YAML
+env:
+- name: SPRING_PROFILES_ACTIVE
+  value: "test"
+</code>
+          </pre>
+
+          <h4>In Tomcat:</h4>
+          <p>Add the profile as a JVM option in the <code>CATALINA_OPTS</code> environment variable:</p>
+          <pre>
+<code>
+export CATALINA_OPTS="$CATALINA_OPTS -Dspring.profiles.active=dev"
+</code>
+          </pre>
+      </section>
+
+      <section>
+          <h3>5. Using Application-Specific Configuration</h3>
+          <p>Specify the active profile in <code>application.properties</code> or <code>application.yml</code>:</p>
+
+          <h4>In application.properties:</h4>
+          <pre>
+<code>
+spring.profiles.active=prod
+</code>
+          </pre>
+
+          <h4>In application.yml:</h4>
+          <pre>
+<code>
+spring:
+profiles:
+  active: prod
+</code>
+          </pre>
+
+          <p>Note: This approach is less flexible for dynamic deployments as it requires modifying the configuration files directly.</p>
+      </section>
+
+      <section>
+          <h2>Best Practices</h2>
+          <ul>
+              <li><strong>Use Profiles for Environment Separation:</strong> Ensure each profile (<code>dev</code>, <code>test</code>, <code>uat</code>, <code>prod</code>) has specific configurations.</li>
+              <li><strong>Avoid Hardcoding Profiles:</strong> Use command-line arguments or environment variables for flexibility.</li>
+              <li><strong>Secure Sensitive Data:</strong> Use encrypted secrets or environment variables for sensitive information.</li>
+          </ul>
+      </section>
+
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot Actuator</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <main>
+        <section>
+            <h2>What is Spring Boot Actuator?</h2>
+            <p>
+                Spring Boot Actuator provides production-ready features to monitor and manage your application. 
+                It includes several built-in endpoints to gather application metrics, monitor health, and interact with the application in real-time.
+            </p>
+        </section>
+
+        <section>
+            <h2>Advantages of Spring Boot Actuator</h2>
+            <ul>
+                <li>Provides out-of-the-box monitoring and management endpoints.</li>
+                <li>Easily integrates with monitoring tools like Prometheus, Grafana, and ELK Stack.</li>
+                <li>Helps in diagnosing and debugging issues in real-time.</li>
+                <li>Customizable endpoints to meet specific application needs.</li>
+                <li>Improves overall observability of the application.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Actuator Endpoints</h2>
+            <p>Below are the commonly used Actuator endpoints:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Description</th>
+                        <th>Default Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/actuator/health</code></td>
+                        <td>Displays the health status of the application.</td>
+                        <td>Enabled</td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/metrics</code></td>
+                        <td>Shows metrics for the application (e.g., memory, CPU, threads).</td>
+                        <td>Enabled</td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/loggers</code></td>
+                        <td>Shows and modifies the application's logging configuration.</td>
+                        <td>Enabled</td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/env</code></td>
+                        <td>Displays properties and their sources in the environment.</td>
+                        <td>Enabled</td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/mappings</code></td>
+                        <td>Displays a list of all request mappings in the application.</td>
+                        <td>Disabled</td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/beans</code></td>
+                        <td>Displays all Spring beans in the application context.</td>
+                        <td>Disabled</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Real-Time Use Cases</h2>
+            <ul>
+                <li><strong>Monitoring:</strong> Use <code>/actuator/metrics</code> to collect memory usage, CPU load, and thread count.</li>
+                <li><strong>Health Checks:</strong> Use <code>/actuator/health</code> to ensure the application is up and running.</li>
+                <li><strong>Debugging:</strong> Use <code>/actuator/loggers</code> to view or change logging levels dynamically.</li>
+                <li><strong>Configuration:</strong> Use <code>/actuator/env</code> to inspect environment properties.</li>
+                <li><strong>API Documentation:</strong> Use <code>/actuator/mappings</code> to view all request mappings.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>How to Enable and Disable Actuator Endpoints</h2>
+            <p>
+                Actuator endpoints can be enabled or disabled using the <code>application.properties</code> file or Java configuration.
+            </p>
+            <h3>Enable/Disable All Endpoints</h3>
+            <pre><code>
+# Enable all Actuator endpoints
+management.endpoints.web.exposure.include=*
+
+# Disable all Actuator endpoints
+management.endpoints.web.exposure.include=none
+            </code></pre>
+
+            <h3>Enable/Disable Specific Endpoints</h3>
+            <pre><code>
+# Enable specific endpoints
+management.endpoints.web.exposure.include=health,info,metrics
+
+# Disable specific endpoints
+management.endpoints.web.exposure.exclude=beans,mappings
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Spring Boot Actuator - Testing All Endpoints</h2>
+            <p>
+                This guide provides detailed steps to test all built-in Spring Boot Actuator endpoints. Follow along 
+                to enable, configure, and test these endpoints effectively.
+            </p>
+        </section>
+
+        <section>
+            <h2>Setup</h2>
+            <h3>1. Add Dependency</h3>
+            <pre><code>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+            </code></pre>
+
+            <h3>2. Enable Endpoints</h3>
+            <p>In <code>application.properties</code>, specify the endpoints to include:</p>
+            <pre><code>
+# Enable all Actuator endpoints
+management.endpoints.web.exposure.include=*
+
+# Optional: Set base path for Actuator endpoints
+management.endpoints.web.base-path=/actuator
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Testing Built-in Endpoints</h2>
+            <p>Below is a detailed list of Actuator endpoints with examples and usage:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Description</th>
+                        <th>Example Output</th>
+                        <th>Test Instructions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/actuator/health</code></td>
+                        <td>Provides application health status.</td>
+                        <td>
+                            <code>{
+    "status": "UP",
+    "components": {
+        "db": {
+            "status": "UP",
+            "details": {
+                "database": "H2",
+                "validationQuery": "isValid()"
+            }
+        },
+        "diskSpace": {
+            "status": "UP",
+            "details": {
+                "total": 499963174912,
+                "free": 211963174912,
+                "threshold": 10485760
+            }
+        }
+    }
+}</code>
+                        </td>
+                        <td>
+                            Open <code>http://localhost:8080/actuator/health</code> in a browser or use a tool like Postman.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/metrics</code></td>
+                        <td>Displays application metrics like memory usage, CPU usage, and thread count.</td>
+                        <td>
+                            <code>{
+    "names": [
+        "jvm.memory.used",
+        "jvm.gc.pause",
+        "system.cpu.usage"
+    ]
+}</code>
+                        </td>
+                        <td>
+                            Visit <code>http://localhost:8080/actuator/metrics</code> and explore specific metrics by appending the metric name (e.g., <code>/actuator/metrics/jvm.memory.used</code>).
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/info</code></td>
+                        <td>Displays custom application information.</td>
+                        <td>
+                            <code>{
+    "app": {
+        "name": "Demo Application",
+        "version": "1.0.0"
+    }
+}</code>
+                        </td>
+                        <td>
+                            Add application details in <code>application.properties</code>:
+                            <code>info.app.name=Demo Application
+info.app.version=1.0.0</code>
+                            Test at <code>http://localhost:8080/actuator/info</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/env</code></td>
+                        <td>Shows environment properties and their sources.</td>
+                        <td>
+                            <code>{
+    "activeProfiles": [],
+    "propertySources": [
+        {
+            "name": "systemProperties",
+            "properties": {
+                "java.runtime.name": {
+                    "value": "OpenJDK Runtime Environment"
+                }
+            }
+        }
+    ]
+}</code>
+                        </td>
+                        <td>
+                            Visit <code>http://localhost:8080/actuator/env</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/loggers</code></td>
+                        <td>Displays and modifies application logging levels.</td>
+                        <td>
+                            <code>{
+    "levels": [
+        "OFF",
+        "ERROR",
+        "WARN",
+        "INFO",
+        "DEBUG",
+        "TRACE"
+    ],
+    "loggers": {
+        "root": {
+            "configuredLevel": "INFO",
+            "effectiveLevel": "INFO"
+        }
+    }
+}</code>
+                        </td>
+                        <td>
+                            Test at <code>http://localhost:8080/actuator/loggers</code>. 
+                            To change a logger level, send a POST request:
+                            <code>curl -X POST -H "Content-Type: application/json" -d '{"configuredLevel":"DEBUG"}' http://localhost:8080/actuator/loggers/com.example</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>/actuator/mappings</code></td>
+                        <td>Displays all request mappings in the application.</td>
+                        <td>
+                            <code>{
+    "contexts": {
+        "application": {
+            "mappings": {
+                "dispatcherServlets": {
+                    "dispatcherServlet": [
+                        {
+                            "handler": "ExampleController",
+                            "method": "exampleMethod"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}</code>
+                        </td>
+                        <td>
+                            Test at <code>http://localhost:8080/actuator/mappings</code>.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Enable or Disable Specific Endpoints</h2>
+            <h3>Configuration in <code>application.properties</code></h3>
+            <pre><code>
+# Enable specific endpoints
+management.endpoints.web.exposure.include=health,info,metrics
+
+# Disable specific endpoints
+management.endpoints.web.exposure.exclude=env,loggers
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Custom Actuator Endpoint</h2>
+            <p>Create a custom endpoint:</p>
+            <pre><code>
+@Component
+@Endpoint(id = "custom")
+public class CustomEndpoint {
+    @ReadOperation
+    public String customOperation() {
+        return "Custom Actuator Endpoint Response";
+    }
+}
+            </code></pre>
+            <p>Access it at <code>/actuator/custom</code>.</p>
+        </section>
+
+        <section>
+            <h2>Testing Tips</h2>
+            <ul>
+                <li>Use Postman or curl for API requests to endpoints.</li>
+                <li>For secured Actuator endpoints, configure authentication using Spring Security.</li>
+                <li>Integrate with monitoring tools like Prometheus or Grafana for detailed insights.</li>
+            </ul>
+        </section>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

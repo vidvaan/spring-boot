@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Queries with Spring Data JPA</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Custom Queries with Spring Data JPA</h2>
+      <p>Spring Data JPA allows you to define custom queries for complex scenarios. This guide covers query methods, JPQL, and the use of <code>@Query</code> and <code>@Modifying</code> annotations for custom queries.</p>
+
+      <h3>1. Query Methods</h3>
+      <p>Query methods in Spring Data JPA allow you to define queries by simply declaring method names. The method names are translated into SQL queries at runtime.</p>
+
+      <h4>Examples of Query Methods</h4>
+      <pre><code>
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+    
+    // Example 1: Find by Name
+    List&lt;Employee&gt; findByName(String name);
+
+    // Example 2: Find by Department
+    List&lt;Employee&gt; findByDepartment(String department);
+
+    // Example 3: Find by Salary Greater Than
+    List&lt;Employee&gt; findBySalaryGreaterThan(double salary);
+
+    // Example 4: Find by Salary Between
+    List&lt;Employee&gt; findBySalaryBetween(double minSalary, double maxSalary);
+
+    // Example 5: Find by Name Starting With
+    List&lt;Employee&gt; findByNameStartingWith(String prefix);
+
+    // Example 6: Count by Department
+    long countByDepartment(String department);
+
+    // Example 7: Delete by Department
+    void deleteByDepartment(String department);
+
+    // Example 8: Exists by Name
+    boolean existsByName(String name);
+}
+      </code></pre>
+
+      <h3>2. JPQL (Java Persistence Query Language)</h3>
+      <p>JPQL is a query language that works with JPA entities instead of database tables. JPQL queries are defined in the repository interface using the <code>@Query</code> annotation.</p>
+
+      <h4>Examples of JPQL Queries</h4>
+      <pre><code>
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+
+    // Example 9: Find all Employees
+    @Query("SELECT e FROM Employee e")
+    List&lt;Employee&gt; findAllEmployees();
+
+    // Example 10: Find Employee by ID
+    @Query("SELECT e FROM Employee e WHERE e.id = :id")
+    Employee findEmployeeById(@Param("id") Long id);
+
+    // Example 11: Find Employees by Department
+    @Query("SELECT e FROM Employee e WHERE e.department = :dept")
+    List&lt;Employee&gt; findEmployeesByDepartment(@Param("dept") String department);
+
+    // Example 12: Find Employees with Salary Greater Than
+    @Query("SELECT e FROM Employee e WHERE e.salary &gt; :minSalary")
+    List&lt;Employee&gt; findEmployeesByMinSalary(@Param("minSalary") double minSalary);
+}
+      </code></pre>
+
+      <h3>3. Using @Query for Custom Queries</h3>
+      <p>The <code>@Query</code> annotation is used to define custom JPQL or native SQL queries in the repository interface.</p>
+
+      <h4>Examples of @Query</h4>
+      <pre><code>
+import org.springframework.data.jpa.repository.Query;
+
+public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+
+    // Example 13: Native Query to Find Employee by Name
+    @Query(value = "SELECT * FROM employee WHERE name = ?1", nativeQuery = true)
+    Employee findByNameNative(String name);
+
+    // Example 14: Native Query to Find Top 3 Highest Salaries
+    @Query(value = "SELECT * FROM employee ORDER BY salary DESC LIMIT 3", nativeQuery = true)
+    List&lt;Employee&gt; findTop3Salaries();
+}
+      </code></pre>
+
+      <h3>4. Using @Modifying for Update and Delete Queries</h3>
+      <p>The <code>@Modifying</code> annotation is used for executing update or delete operations in custom queries.</p>
+
+      <h4>Examples of @Modifying</h4>
+      <pre><code>
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
+
+public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+
+    // Example 15: Update Employee Salary
+    @Modifying
+    @Transactional
+    @Query("UPDATE Employee e SET e.salary = :salary WHERE e.id = :id")
+    void updateEmployeeSalary(@Param("id") Long id, @Param("salary") double salary);
+
+    // Example 16: Delete Employee by ID
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Employee e WHERE e.id = :id")
+    void deleteEmployeeById(@Param("id") Long id);
+}
+      </code></pre>
+
+      <h3>5. Full Repository Example</h3>
+      <pre><code>
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+    // Combine Query Methods, JPQL, and @Query/@Modifying examples here
+}
+      </code></pre>
+
+      <h3>6. Testing with CommandLineRunner</h3>
+      <p>Test the repository methods in a <code>CommandLineRunner</code> implementation:</p>
+      <pre><code>
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TestRunner implements CommandLineRunner {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("Fetching all employees...");
+        employeeRepository.findAll().forEach(System.out::println);
+
+        System.out.println("Updating an employee salary...");
+        employeeRepository.updateEmployeeSalary(1L, 75000);
+
+        System.out.println("Deleting an employee by ID...");
+        employeeRepository.deleteEmployeeById(2L);
+    }
+}
+      </code></pre>
+
+      <h3>7. Summary</h3>
+      <table border="1" cellpadding="10">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Query Methods</td>
+            <td>Auto-translate method names to SQL</td>
+            <td><code>findByName</code>, <code>findBySalaryGreaterThan</code></td>
+          </tr>
+          <tr>
+            <td>JPQL</td>
+            <td>Entity-based queries</td>
+            <td><code>@Query("SELECT e FROM Employee e WHERE e.salary &gt; :minSalary")</code></td>
+          </tr>
+          <tr>
+            <td>@Query</td>
+            <td>Custom SQL or JPQL queries</td>
+            <td><code>@Query(value = "SELECT * FROM employee WHERE name = ?1", nativeQuery = true)</code></td>
+          </tr>
+          <tr>
+            <td>@Modifying</td>
+            <td>Custom update or delete operations</td>
+            <td><code>@Modifying @Query("UPDATE Employee e SET e.salary = :salary WHERE e.id = :id")</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+   <script src="../js/scripts.js"></script>
+   <div id="footer-container"></div>
+</body>
+</html>

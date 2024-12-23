@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Dropdown</title>
+  <style>
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: inline-block;
+      width: 100px;
+    }
+    input {
+      padding: 5px;
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Process Instance Selector</h1>
+  <div>
+    <label for="processId">Process ID:</label>
+    <select id="processId">
+      <option value="">Select Process ID</option>
+    </select>
+  </div>
+  <div>
+    <label for="instanceId">Instance:</label>
+    <select id="instanceId" disabled>
+      <option value="">Select Instance</option>
+    </select>
+  </div>
+  <div id="instanceDetails" style="margin-top: 20px;"></div>
+
+  <script>
+    // Sample JSON Data
+    const data = {
+      "processes": [
+        {
+          "processId": 1,
+          "instances": [
+            {
+              "name": "Instance 1A",
+              "id": 101,
+              "owner": "Owner A",
+              "url": "http://example.com/instance1A",
+              "topicKey1": "Topic 1A",
+              "topicKey2": "Topic 1A.2"
+            },
+            {
+              "name": "Instance 1B",
+              "id": 102,
+              "owner": "Owner B",
+              "url": "http://example.com/instance1B",
+              "topicKey1": "Topic 1B",
+              "topicKey2": "Topic 1B.2"
+            },
+            {
+              "name": "Instance 1C",
+              "id": 103,
+              "owner": "Owner C",
+              "url": "http://example.com/instance1C",
+              "topicKey1": "Topic 1C",
+              "topicKey2": "Topic 1C.2",
+              
+            },
+            {
+              "name": "Instance 1D",
+              "id": 104,
+              "owner": "Owner D",
+              "url": "http://example.com/instance1D",
+              "topicKey1": "Topic 1D",
+              "topicKey2": "Topic 1C.3"
+            }
+          ]
+        },
+        {
+          "processId": 2,
+          "instances": [
+            {
+              "name": "Instance 2A",
+              "id": 201,
+              "owner": "Owner A",
+              "url": "http://example.com/instance2A",
+              "topicKey1": "Topic 2A"
+            },
+            {
+              "name": "Instance 2B",
+              "id": 202,
+              "owner": "Owner B",
+              "url": "http://example.com/instance2B",
+              "topicKey1": "Topic 2B"
+            },
+            {
+              "name": "Instance 2C",
+              "id": 203,
+              "owner": "Owner C",
+              "url": "http://example.com/instance2A",
+              "topicKey1": "Topic 2A"
+            },
+            {
+              "name": "Instance 2D",
+              "id": 204,
+              "owner": "Owner D",
+              "url": "http://example.com/instance2B",
+              "topicKey1": "Topic 2B"
+            }
+          ]
+        }
+      ]
+    };
+
+    // Populate Process ID Dropdown
+    const processIdDropdown = document.getElementById('processId');
+    const instanceIdDropdown = document.getElementById('instanceId');
+    const instanceDetails = document.getElementById('instanceDetails');
+
+    data.processes.forEach(process => {
+      const option = document.createElement('option');
+      option.value = process.processId;
+      option.textContent = `Process ${process.processId}`;
+      processIdDropdown.appendChild(option);
+    });
+
+    // Handle Process ID Selection
+    processIdDropdown.addEventListener('change', function () {
+      const processId = this.value;
+      instanceIdDropdown.innerHTML = '<option value="">Select Instance</option>'; // Reset instances
+      instanceIdDropdown.disabled = true; // Disable until data is added
+      instanceDetails.innerHTML = ''; // Clear instance details
+
+      if (processId) {
+        const selectedProcess = data.processes.find(p => p.processId == processId);
+        selectedProcess.instances.forEach(instance => {
+          const option = document.createElement('option');
+          option.value = instance.id;
+          option.textContent = instance.name;
+          instanceIdDropdown.appendChild(option);
+        });
+        instanceIdDropdown.disabled = false;
+      }
+    });
+
+    // Handle Instance Selection
+    instanceIdDropdown.addEventListener('change', function () {
+      const instanceId = this.value;
+      instanceDetails.innerHTML = ''; // Clear previous details
+
+      if (instanceId) {
+        const processId = processIdDropdown.value;
+        const selectedProcess = data.processes.find(p => p.processId == processId);
+        const selectedInstance = selectedProcess.instances.find(i => i.id == instanceId);
+
+        for (const [key, value] of Object.entries(selectedInstance)) {
+          const formGroup = document.createElement('div');
+          formGroup.className = 'form-group';
+
+          const label = document.createElement('label');
+          label.textContent = key.charAt(0).toUpperCase() + key.slice(1) + ':';
+          formGroup.appendChild(label);
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = value;
+          input.readOnly = true;
+          formGroup.appendChild(input);
+
+          instanceDetails.appendChild(formGroup);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

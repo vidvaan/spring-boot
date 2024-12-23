@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot JSP Integration</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Spring Boot with JSP Integration</h2>
+      <p>Spring Boot simplifies the development of web applications by offering support for JSP (Java Server Pages) for view rendering. This guide explains how to integrate JSP with Spring Boot, including configuration, setup, and usage examples.</p>
+
+      <h3>1. Overview of JSP in Spring Boot</h3>
+      <ul>
+        <li>JSP is a server-side view rendering technology for creating dynamic web pages.</li>
+        <li>Spring Boot supports JSP, but requires some additional configuration compared to Thymeleaf.</li>
+      </ul>
+
+      <h3>2. Application Setup</h3>
+
+      <h4>2.1. Required Dependencies</h4>
+      <p>Add the following dependencies in your <code>pom.xml</code> file:</p>
+      <pre><code>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.tomcat.embed&lt;/groupId&gt;
+        &lt;artifactId&gt;tomcat-embed-jasper&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;jakarta.servlet.jsp.jstl&lt;/groupId&gt;
+        &lt;artifactId&gt;jakarta.servlet.jsp.jstl-api&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.glassfish.web&lt;/groupId&gt;
+        &lt;artifactId&gt;jakarta.servlet.jsp.jstl&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+&lt;/dependencies&gt;
+      </code></pre>
+
+      <h4>2.2. Directory Structure</h4>
+      <p>Ensure your JSP files are placed under the <code>src/main/webapp/WEB-INF/views</code> directory.</p>
+      <pre><code>
+src/
+├── main/
+│   ├── java/
+│   ├── resources/
+│   │   ├── application.properties
+│   ├── webapp/
+│       ├── WEB-INF/
+│           ├── views/
+│               ├── index.jsp
+│               ├── about.jsp
+      </code></pre>
+
+      <h4>2.3. Configuration in <code>application.properties</code></h4>
+      <p>Configure JSP view resolver properties:</p>
+      <pre><code>
+spring.mvc.view.prefix=/WEB-INF/views/
+spring.mvc.view.suffix=.jsp
+      </code></pre>
+
+      <h3>3. Example Implementation</h3>
+
+      <h4>3.1. Controller</h4>
+      <p>Create a Spring MVC controller to handle requests and return JSP views.</p>
+      <pre><code>
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class HomeController {
+
+    @GetMapping("/")
+    public String home(Model model) {
+        model.addAttribute("message", "Welcome to Spring Boot with JSP!");
+        return "index";
+    }
+
+    @GetMapping("/about")
+    public String about(Model model) {
+        model.addAttribute("info", "This is a JSP-based web application.");
+        return "about";
+    }
+}
+      </code></pre>
+
+      <h4>3.2. Sample JSP Files</h4>
+      <h5><code>index.jsp</code></h5>
+      <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Home&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;${message}&lt;/h1&gt;
+    &lt;p&gt;Navigate to &lt;a href="about"&gt;About&lt;/a&gt; page.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+      </code></pre>
+
+      <h5><code>about.jsp</code></h5>
+      <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;About&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;About Us&lt;/h1&gt;
+    &lt;p&gt;${info}&lt;/p&gt;
+    &lt;a href="/"&gt;Go Back&lt;/a&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+      </code></pre>
+
+      <h3>4. Running the Application</h3>
+      <p>After completing the setup, run the Spring Boot application. Access the application at <code>http://localhost:8080</code> to view the JSP pages.</p>
+
+      <h3>5. Summary</h3>
+      <p>Spring Boot supports JSP as a view technology, allowing developers to build dynamic web pages. While it requires additional setup, the flexibility and power of JSP can be leveraged effectively in a Spring Boot application.</p>
+    </section>
+    <section>
+        <h2>Spring Boot JSP CRUD Application</h2>
+        <p>This guide demonstrates how to build a CRUD (Create, Read, Update, Delete) application using Spring Boot and JSP. You'll learn how to set up the project, create a controller, JSP views, and perform CRUD operations.</p>
+  
+        <h3>1. Setup</h3>
+  
+        <h4>1.1. Maven Dependencies</h4>
+        <p>Add the required dependencies in your <code>pom.xml</code>:</p>
+        <pre><code>
+  &lt;dependencies&gt;
+      &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+          &lt;groupId&gt;org.apache.tomcat.embed&lt;/groupId&gt;
+          &lt;artifactId&gt;tomcat-embed-jasper&lt;/artifactId&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+        &lt;groupId&gt;jakarta.servlet.jsp.jstl&lt;/groupId&gt;
+        &lt;artifactId&gt;jakarta.servlet.jsp.jstl-api&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.glassfish.web&lt;/groupId&gt;
+        &lt;artifactId&gt;jakarta.servlet.jsp.jstl&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+      &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+          &lt;groupId&gt;com.h2database&lt;/groupId&gt;
+          &lt;artifactId&gt;h2&lt;/artifactId&gt;
+          &lt;scope&gt;runtime&lt;/scope&gt;
+      &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+        </code></pre>
+  
+        <h4>1.2. Configuration</h4>
+        <p>Update the <code>application.properties</code> file:</p>
+        <pre><code>
+  spring.datasource.url=jdbc:h2:mem:testdb
+  spring.datasource.driver-class-name=org.h2.Driver
+  spring.datasource.username=sa
+  spring.datasource.password=password
+  spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+  spring.mvc.view.prefix=/WEB-INF/views/
+  spring.mvc.view.suffix=.jsp
+        </code></pre>
+  
+        <h3>2. Directory Structure</h3>
+        <p>Your project should have the following structure:</p>
+        <pre><code>
+  src/
+  ├── main/
+  │   ├── java/
+  │   │   ├── com.example.demo/
+  │   │       ├── controller/
+  │   │       ├── model/
+  │   │       ├── repository/
+  │   │       ├── service/
+  │   ├── resources/
+  │   │   ├── application.properties
+  │   ├── webapp/
+  │       ├── WEB-INF/
+  │           ├── views/
+  │               ├── list.jsp
+  │               ├── add.jsp
+  │               ├── edit.jsp
+        </code></pre>
+  
+        <h3>3. Implementation</h3>
+  
+        <h4>3.1. Model</h4>
+        <pre><code>
+  package com.example.demo.model;
+  
+  import jakarta.persistence.Entity;
+  import jakarta.persistence.GeneratedValue;
+  import jakarta.persistence.GenerationType;
+  import jakarta.persistence.Id;
+  
+  @Entity
+  public class Employee {
+      @Id
+      @GeneratedValue(strategy = GenerationType.IDENTITY)
+      private Long id;
+      private String name;
+      private String department;
+      private Double salary;
+  
+      // Getters and setters
+  }
+        </code></pre>
+  
+        <h4>3.2. Repository</h4>
+        <pre><code>
+  package com.example.demo.repository;
+  
+  import com.example.demo.model.Employee;
+  import org.springframework.data.jpa.repository.JpaRepository;
+  
+  public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+  }
+        </code></pre>
+  
+        <h4>3.3. Controller</h4>
+        <pre><code>
+  package com.example.demo.controller;
+  
+  import com.example.demo.model.Employee;
+  import com.example.demo.repository.EmployeeRepository;
+  import org.springframework.beans.factory.annotation.Autowired;
+  import org.springframework.stereotype.Controller;
+  import org.springframework.ui.Model;
+  import org.springframework.web.bind.annotation.*;
+  
+  import java.util.List;
+  
+  @Controller
+  @RequestMapping("/employees")
+  public class EmployeeController {
+  
+      @Autowired
+      private EmployeeRepository repository;
+  
+      @GetMapping
+      public String listEmployees(Model model) {
+          List<Employee> employees = repository.findAll();
+          model.addAttribute("employees", employees);
+          return "list";
+      }
+  
+      @GetMapping("/add")
+      public String addEmployeeForm(Model model) {
+          model.addAttribute("employee", new Employee());
+          return "add";
+      }
+  
+      @PostMapping
+      public String saveEmployee(@ModelAttribute Employee employee) {
+          repository.save(employee);
+          return "redirect:/employees";
+      }
+  
+      @GetMapping("/edit/{id}")
+      public String editEmployeeForm(@PathVariable Long id, Model model) {
+          Employee employee = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid employee Id:" + id));
+          model.addAttribute("employee", employee);
+          return "edit";
+      }
+  
+      @PostMapping("/update/{id}")
+      public String updateEmployee(@PathVariable Long id, @ModelAttribute Employee employee) {
+          employee.setId(id);
+          repository.save(employee);
+          return "redirect:/employees";
+      }
+  
+      @GetMapping("/delete/{id}")
+      public String deleteEmployee(@PathVariable Long id) {
+          repository.deleteById(id);
+          return "redirect:/employees";
+      }
+  }
+        </code></pre>
+  
+        <h4>3.4. JSP Views</h4>
+        <h5><code>list.jsp</code></h5>
+        <pre><code>
+  &lt;!DOCTYPE html&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+      &lt;title&gt;Employee List&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+      &lt;h1&gt;Employees&lt;/h1&gt;
+      &lt;a href="add"&gt;Add New Employee&lt;/a&gt;
+      &lt;table border="1"&gt;
+          &lt;tr&gt;
+              &lt;th&gt;ID&lt;/th&gt;
+              &lt;th&gt;Name&lt;/th&gt;
+              &lt;th&gt;Department&lt;/th&gt;
+              &lt;th&gt;Salary&lt;/th&gt;
+              &lt;th&gt;Actions&lt;/th&gt;
+          &lt;/tr&gt;
+          &lt;c:forEach var="employee" items="${employees}"&gt;
+              &lt;tr&gt;
+                  &lt;td&gt;${employee.id}&lt;/td&gt;
+                  &lt;td&gt;${employee.name}&lt;/td&gt;
+                  &lt;td&gt;${employee.department}&lt;/td&gt;
+                  &lt;td&gt;${employee.salary}&lt;/td&gt;
+                  &lt;td&gt;
+                      &lt;a href="edit/${employee.id}"&gt;Edit&lt;/a&gt; |
+                      &lt;a href="delete/${employee.id}"&gt;Delete&lt;/a&gt;
+                  &lt;/td&gt;
+              &lt;/tr&gt;
+          &lt;/c:forEach&gt;
+      &lt;/table&gt;
+  &lt;/body&gt;
+  &lt;/html&gt;
+        </code></pre>
+  
+        <h5><code>add.jsp</code></h5>
+        <pre><code>
+  &lt;!DOCTYPE html&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+      &lt;title&gt;Add Employee&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+      &lt;h1&gt;Add Employee&lt;/h1&gt;
+      &lt;form action="/employees" method="post"&gt;
+          Name: &lt;input type="text" name="name" required&gt;&lt;br&gt;
+          Department: &lt;input type="text" name="department" required&gt;&lt;br&gt;
+          Salary: &lt;input type="number" step="0.01" name="salary" required&gt;&lt;br&gt;
+          &lt;button type="submit"&gt;Save&lt;/button&gt;
+      &lt;/form&gt;
+  &lt;/body&gt;
+  &lt;/html&gt;
+        </code></pre>
+  
+        <h5><code>edit.jsp</code></h5>
+        <pre><code>
+  &lt;!DOCTYPE html&gt;
+  &lt;html&gt;
+  &lt;head&gt;
+      &lt;title&gt;Edit Employee&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+      &lt;h1&gt;Edit Employee&lt;/h1&gt;
+      &lt;form action="/employees/update/${employee.id}" method="post"&gt;
+          Name: &lt;input type="text" name="name" value="${employee.name}" required&gt;&lt;br&gt;
+          Department: &lt;input type="text" name="department" value="${employee.department}" required&gt;&lt;br&gt;
+          Salary: &lt;input type="number" step="0.01" name="salary" value="${employee.salary}" required&gt;&lt;br&gt;
+          &lt;button type="submit"&gt;Update&lt;/button&gt;
+      &lt;/form&gt;
+  &lt;/body&gt;
+  &lt;/html&gt;
+        </code></pre>
+  
+        <h3>4. Running the Application</h3>
+        <p>Start the Spring Boot application and navigate to <code>http://localhost:8080/employees</code> to manage employees.</p>
+  
+        <h3>5. Summary</h3>
+        <p>Using Spring Boot with JSP, you can efficiently build CRUD applications with minimal configuration and clear separation of concerns.</p>
+      </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

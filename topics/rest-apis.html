@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Building RESTful APIs with Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+     <!-- Section: Building RESTful APIs with Spring Boot (Without ResponseEntity) -->
+     <section>
+        <h2>Building RESTful APIs with Spring Boot (Without ResponseEntity)</h2>
+        <p>In this example, we'll build a RESTful API using Spring Boot, but instead of using <code>ResponseEntity</code>, we will return simple Java objects. Spring Boot will automatically convert them to the appropriate HTTP response format (JSON, XML, etc.).</p>
+  
+        <h3>1. Creating the RESTful Service Without ResponseEntity</h3>
+        <p>In this example, we will create a simple Spring Boot service with the following methods:</p>
+        <ul>
+          <li>A <code>GET</code> method to retrieve a user by ID.</li>
+          <li>A <code>POST</code> method to create a new user.</li>
+        </ul>
+  
+        <h4>Example Code:</h4>
+        <pre><code>
+  import org.springframework.web.bind.annotation.*;
+  
+  @RestController
+  @RequestMapping("/api")
+  public class UserController {
+  
+      // GET request to retrieve a user by ID
+      @GetMapping("/user/{id}")
+      public User getUser(@PathVariable("id") Long id) {
+          User user = new User(id, "John Doe", "john.doe@example.com");
+          return user; // Returns a simple Java object (no ResponseEntity)
+      }
+  
+      // POST request to create a new user
+      @PostMapping("/user")
+      public User createUser(@RequestBody User user) {
+          user.setId(1L); // Simulate saving the user
+          return user; // Returns the created user object (no ResponseEntity)
+      }
+  }
+  
+  class User {
+      private Long id;
+      private String name;
+      private String email;
+  
+      // Constructor, getters, and setters
+  
+      public User(Long id, String name, String email) {
+          this.id = id;
+          this.name = name;
+          this.email = email;
+      }
+  
+      public Long getId() {
+          return id;
+      }
+  
+      public void setId(Long id) {
+          this.id = id;
+      }
+  
+      public String getName() {
+          return name;
+      }
+  
+      public void setName(String name) {
+          this.name = name;
+      }
+  
+      public String getEmail() {
+          return email;
+      }
+  
+      public void setEmail(String email) {
+          this.email = email;
+      }
+  }
+        </code></pre>
+        <p>In this example:</p>
+        <ul>
+          <li><strong>getUser() Method:</strong> Handles the HTTP <code>GET</code> request. It uses <code>@PathVariable</code> to extract the user ID from the URL and returns a <code>User</code> object. Spring Boot automatically converts this Java object into a JSON response.</li>
+          <li><strong>createUser() Method:</strong> Handles the HTTP <code>POST</code> request. It uses <code>@RequestBody</code> to bind the request body to the <code>User</code> object. The created user object is returned directly to the client, and Spring Boot automatically converts it into a JSON response.</li>
+        </ul>
+  
+        <h3>2. Testing the API</h3>
+        <p>To test this API, you can use tools like <code>Postman</code> or a simple web browser.</p>
+        
+        <h4>Testing the GET API:</h4>
+        <p>To retrieve the user with ID 1, make a GET request to the following URL:</p>
+        <pre><code>http://localhost:8080/api/user/1</code></pre>
+        <p>This will return a JSON response with the user details:</p>
+        <pre><code>
+  {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+  }
+        </code></pre>
+  
+        <h4>Testing the POST API:</h4>
+        <p>To create a new user, make a POST request with the user data to the following URL:</p>
+        <pre><code>http://localhost:8080/api/user</code></pre>
+        <p>Use the following JSON body to create a user:</p>
+        <pre><code>
+  {
+      "name": "Jane Doe",
+      "email": "jane.doe@example.com"
+  }
+        </code></pre>
+        <p>Response will be:</p>
+        <pre><code>
+  {
+      "id": 1,
+      "name": "Jane Doe",
+      "email": "jane.doe@example.com"
+  }
+        </code></pre>
+  
+        <h3>3. Returning Simple Java Objects</h3>
+        <p>In this example, we returned simple Java objects like <code>User</code> from the controller methods. Spring Boot automatically converts these objects to JSON format based on the <code>jackson-databind</code> library that comes by default with Spring Boot's web starter. Here's what happens under the hood:</p>
+        <ul>
+          <li>Spring Boot automatically converts Java objects to JSON format (or XML if configured) when returning from a controller method.</li>
+          <li>No need to use <code>ResponseEntity</code> if you only want to return data. Spring Boot handles status codes (200 OK) and JSON conversion automatically.</li>
+          <li>If you need more control over the HTTP response (e.g., setting status codes, custom headers), you should use <code>ResponseEntity</code>.</li>
+        </ul>
+  
+        <h3>4. Summary of Key Annotations</h3>
+        <table border="1" cellpadding="10">
+            <thead>
+              <tr>
+                <th>Annotation</th>
+                <th>Purpose</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@RestController</code></td>
+                <td>Marks the class as a REST controller that handles HTTP requests and returns responses.</td>
+                <td><code>@RestController public class UserController { ... }</code></td>
+              </tr>
+              <tr>
+                <td><code>@RequestMapping</code></td>
+                <td>Defines a common base path for all the handler methods in the controller.</td>
+                <td><code>@RequestMapping("/api")</code></td>
+              </tr>
+              <tr>
+                <td><code>@GetMapping</code></td>
+                <td>Handles HTTP GET requests.</td>
+                <td><code>@GetMapping("/user/{id}")</code></td>
+              </tr>
+              <tr>
+                <td><code>@PostMapping</code></td>
+                <td>Handles HTTP POST requests.</td>
+                <td><code>@PostMapping("/user")</code></td>
+              </tr>
+              <tr>
+                <td><code>@RequestBody</code></td>
+                <td>Binds the HTTP request body to a method parameter.</td>
+                <td><code>public User createUser(@RequestBody User user) { ... }</code></td>
+              </tr>
+              <tr>
+                <td><code>@PathVariable</code></td>
+                <td>Extracts values from the URL path.</td>
+                <td><code>public User getUser(@PathVariable("id") Long id) { ... }</code></td>
+              </tr>
+            </tbody>
+          </table>
+  
+      </section>
+  
+    <!-- Section: Building RESTful APIs with Spring Boot -->
+    <section>
+      <h2>Building RESTful APIs with Spring Boot</h2>
+      <p>In this guide, we'll learn how to build RESTful APIs with Spring Boot. We will use various Spring Boot annotations to create and manage endpoints and also explore how to consume these services using <code>RestTemplate</code>.</p>
+
+      <h3>1. Introduction to Spring Boot Annotations for REST APIs</h3>
+      <p>Spring Boot provides several annotations to create RESTful APIs. Some of the most commonly used annotations are:</p>
+      <ul>
+        <li><strong><code>@RestController</code></strong>: Used to define a REST controller that handles HTTP requests.</li>
+        <li><strong><code>@RequestMapping</code></strong>: Maps HTTP requests to handler methods of REST controllers.</li>
+        <li><strong><code>@GetMapping</code></strong>: Shortcut for <code>@RequestMapping(method = RequestMethod.GET)</code>.</li>
+        <li><strong><code>@PostMapping</code></strong>: Shortcut for <code>@RequestMapping(method = RequestMethod.POST)</code>.</li>
+        <li><strong><code>@PutMapping</code></strong>: Shortcut for <code>@RequestMapping(method = RequestMethod.PUT)</code>.</li>
+        <li><strong><code>@DeleteMapping</code></strong>: Shortcut for <code>@RequestMapping(method = RequestMethod.DELETE)</code>.</li>
+        <li><strong><code>@PathVariable</code></strong>: Used to extract values from the URL.</li>
+        <li><strong><code>@RequestBody</code></strong>: Used to bind the HTTP request body to a method parameter.</li>
+        <li><strong><code>@ResponseStatus</code></strong>: Used to specify the HTTP status code for a method.</li>
+      </ul>
+
+      <h3>2. Example 1: Building a Simple RESTful Service</h3>
+      <p>In this example, we will create a simple Spring Boot RESTful service that handles <code>GET</code> and <code>POST</code> requests:</p>
+      <pre><code>
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class UserController {
+
+    // GET request to retrieve a user
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUser(@PathVariable("id") Long id) {
+        User user = new User(id, "John Doe", "john.doe@example.com");
+        return ResponseEntity.ok(user);
+    }
+
+    // POST request to create a user
+    @PostMapping("/user")
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        user.setId(1L); // Simulate saving the user
+        return ResponseEntity.status(201).body(user);
+    }
+}
+
+class User {
+    private Long id;
+    private String name;
+    private String email;
+
+    // Constructor, getters, and setters
+
+    public User(Long id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}
+      </code></pre>
+      <p>In this example:</p>
+      <ul>
+        <li><code>@RestController</code>: Marks the class as a REST controller, allowing it to handle HTTP requests.</li>
+        <li><code>@GetMapping</code>: Maps HTTP GET requests to the <code>getUser</code> method, which returns a user object.</li>
+        <li><code>@PostMapping</code>: Maps HTTP POST requests to the <code>createUser</code> method, which creates a new user from the request body.</li>
+        <li><code>@PathVariable</code>: Extracts the <code>id</code> from the URL path in the <code>getUser</code> method.</li>
+        <li><code>@RequestBody</code>: Binds the HTTP request body to the <code>user</code> parameter in the <code>createUser</code> method.</li>
+        <li><code>ResponseEntity</code>: Used to return the response along with HTTP status codes. In this case, <code>ResponseEntity.ok(user)</code> returns the user with a 200 OK status.</li>
+      </ul>
+
+      <h3>3. Example 2: Consuming the REST API with RestTemplate</h3>
+      <p>Now, let’s create a simple application that consumes the above RESTful API using <code>RestTemplate</code>.</p>
+      <pre><code>
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class UserService {
+
+    private static final String BASE_URL = "http://localhost:8080/api/user/";
+
+    private RestTemplate restTemplate;
+
+    public UserService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    // Consume GET API
+    public User getUser(Long id) {
+        return restTemplate.getForObject(BASE_URL + id, User.class);
+    }
+
+    // Consume POST API
+    public User createUser(User user) {
+        return restTemplate.postForObject(BASE_URL, user, User.class);
+    }
+}
+      </code></pre>
+      <p>In this example:</p>
+      <ul>
+        <li><code>RestTemplate</code>: Used to send HTTP requests to the server and consume the API.</li>
+        <li><code>getForObject()</code>: Sends a GET request to retrieve the user by ID and returns a <code>User</code> object.</li>
+        <li><code>postForObject()</code>: Sends a POST request to create a new user with the provided data.</li>
+      </ul>
+
+      <h3>4. Consuming the Service in the Main Application</h3>
+      <p>Now we can consume the above <code>RestTemplate</code> service in the main application. Below is an example of how to consume the service in your application:</p>
+      <pre><code>
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application implements CommandLineRunner {
+
+    @Autowired
+    private UserService userService;
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        // Consuming GET API
+        User user = userService.getUser(1L);
+        System.out.println("User: " + user.getName());
+
+        // Consuming POST API
+        User newUser = new User(null, "Jane Doe", "jane.doe@example.com");
+        User createdUser = userService.createUser(newUser);
+        System.out.println("Created User: " + createdUser.getName());
+    }
+}
+      </code></pre>
+      <p>In this example:</p>
+      <ul>
+        <li><code>CommandLineRunner</code>: The main class implements <code>CommandLineRunner</code> to run code after the Spring Boot application starts.</li>
+        <li><code>userService.getUser(1L)</code>: Calls the GET API to retrieve a user by ID.</li>
+        <li><code>userService.createUser(newUser)</code>: Calls the POST API to create a new user.</li>
+      </ul>
+
+      <h3>5. ResponseEntity</h3>
+      <p><code>ResponseEntity</code> is a powerful Spring class that represents the entire HTTP response, including status code, headers, and body. You can use it to return custom HTTP responses in your controllers.</p>
+      <ul>
+        <li><strong>Example of returning a custom HTTP status:</strong></li>
+        <pre><code>
+return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        </code></pre>
+        <li><strong>Example of setting custom headers:</strong></li>
+        <pre><code>
+HttpHeaders headers = new HttpHeaders();
+headers.add("Custom-Header", "Header-Value");
+return new ResponseEntity<>(user, headers, HttpStatus.OK);
+        </code></pre>
+      </ul>
+
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

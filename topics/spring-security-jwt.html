@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Tutorial with Java Examples</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Placeholder for Header -->
+    <div id="header-container"></div>
+
+    <main>
+        <h2>JWT Tutorial with Java Examples</h2>
+        <p>
+            JSON Web Tokens (JWT) are a compact, URL-safe way to transmit information between two parties. 
+            This tutorial covers JWT concepts, use cases, and examples implemented in Java.
+        </p>
+
+        <!-- Section: What is JWT? -->
+        <section>
+            <h3>1. What is JWT?</h3>
+            <p>
+                A JSON Web Token (JWT) is an open standard for securely transmitting information as a JSON object. 
+                It can be signed or encrypted, ensuring data integrity and security.
+            </p>
+            <ul>
+                <li>**Compact**: Small size, making it ideal for HTTP headers.</li>
+                <li>**Self-contained**: Contains all necessary information within the token.</li>
+                <li>**Stateless**: Eliminates the need for server-side session storage.</li>
+            </ul>
+        </section>
+
+        <!-- Section: JWT Structure -->
+        <section>
+            <h3>2. JWT Structure</h3>
+            <p>A JWT has three parts, separated by dots (`.`):</p>
+            <pre>
+Header.Payload.Signature
+            </pre>
+            <ul>
+                <li><strong>Header:</strong> Specifies metadata, like the algorithm and token type.</li>
+                <li><strong>Payload:</strong> Contains claims, such as user data or expiration time.</li>
+                <li><strong>Signature:</strong> Ensures data integrity using a secret key.</li>
+            </ul>
+        </section>
+
+        <!-- Section: Use Cases -->
+        <section>
+            <h3>3. Use Cases</h3>
+            <ul>
+                <li><strong>Authentication:</strong> Verifies user identity in stateless systems.</li>
+                <li><strong>Information Exchange:</strong> Securely transfers data between parties.</li>
+                <li><strong>Authorization:</strong> Assigns user roles and permissions.</li>
+            </ul>
+        </section>
+
+        <!-- Section: Java Example: Generate JWT -->
+        <section>
+            <h3>4. Example: Generating JWT in Java</h3>
+            <p>The following example demonstrates how to generate a JWT using the <code>io.jsonwebtoken</code> library.</p>
+            <pre><code>
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
+
+public class JwtExample {
+
+    private static final String SECRET_KEY = "mySecretKey12345"; // Use a strong, secure secret key
+
+    public static String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour expiration
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+
+    public static void main(String[] args) {
+        String jwt = generateToken("JohnDoe");
+        System.out.println("Generated JWT: " + jwt);
+    }
+}
+            </code></pre>
+            <p>
+                In this example:
+            </p>
+            <ul>
+                <li>The token contains the username in the payload.</li>
+                <li>The token expires after 1 hour.</li>
+                <li>A secret key is used to sign the token.</li>
+            </ul>
+        </section>
+
+        <!-- Section: Java Example: Validate JWT -->
+        <section>
+            <h3>5. Example: Validating JWT in Java</h3>
+            <p>The following example demonstrates how to validate and parse a JWT.</p>
+            <pre><code>
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Claims;
+
+public class JwtValidator {
+
+    private static final String SECRET_KEY = "mySecretKey12345";
+
+    public static void validateToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+
+        System.out.println("Username: " + claims.getSubject());
+        System.out.println("Issued At: " + claims.getIssuedAt());
+        System.out.println("Expiration: " + claims.getExpiration());
+    }
+
+    public static void main(String[] args) {
+        String jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKb2huRG9lIiwiaWF0IjoxNjA2Mzg4ODAwLCJleHAiOjE2MDYzOTI0MDB9.VaBHTxXnYRxz_tLF6EubZGDtR8mGXBmKL_YEAnZWxFw";
+        validateToken(jwt);
+    }
+}
+            </code></pre>
+            <p>
+                The <code>validateToken</code> method:
+            </p>
+            <ul>
+                <li>Parses the token to extract claims.</li>
+                <li>Verifies the signature using the secret key.</li>
+            </ul>
+        </section>
+
+        <!-- Section: Summary -->
+        <section>
+            <h3>6. Summary</h3>
+            <p>
+                JWTs provide a secure, stateless way to authenticate and exchange information. 
+                By signing the token, we ensure data integrity and authenticity.
+            </p>
+            <ul>
+                <li>Use strong secret keys or asymmetric keys for signing.</li>
+                <li>Always validate claims like <code>exp</code> and <code>sub</code>.</li>
+                <li>Implement short expiration times for tokens.</li>
+                <li>Use HTTPS to prevent token interception.</li>
+            </ul>
+        </section>
+            <section>
+                <h2>JWT with REST API in Spring Boot</h2>
+                <h2>Introduction</h2>
+                <p>JSON Web Token (JWT) is a compact and self-contained way for securely transmitting information between parties as a JSON object. This tutorial demonstrates how to implement JWT authentication in a Spring Boot REST API.</p>
+            </section>
+    
+            <section>
+                <h2>Project Setup</h2>
+                <p>To implement JWT in Spring Boot, include the following dependencies in your <code>pom.xml</code>:</p>
+                <pre><code>
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+        &lt;artifactId&gt;jjwt-api&lt;/artifactId&gt;
+        &lt;version&gt;0.11.5&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+        &lt;artifactId&gt;jjwt-impl&lt;/artifactId&gt;
+        &lt;version&gt;0.11.5&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+        &lt;artifactId&gt;jjwt-jackson&lt;/artifactId&gt;
+        &lt;version&gt;0.11.5&lt;/version&gt;
+    &lt;/dependency&gt;
+                </code></pre>
+            </section>
+    
+            <section>
+                <h2>JWT Utility Class</h2>
+                <p>The <code>JwtUtil</code> class handles the creation and validation of JWTs.</p>
+                <pre><code>
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
+
+@Component
+public class JwtUtil {
+
+    // The key must be at least 256 bits (32 bytes) long for HS256
+    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("mySecretKey112128828mykeymySecretKey112128828mykey".getBytes()); // 256-bit key
+    private final int TOKEN_VALIDITY = 3600 * 1000; // 1 hour
+
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY))
+                .signWith(SECRET_KEY) // No need to specify algorithm here if it's already defined in the key
+                .compact();
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token); // Validates token signature and expiration
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+}
+
+                </code></pre>
+            </section>
+    
+            <section>
+                <h2>Security Configuration</h2>
+                <p>Configure Spring Security to use JWT for authentication.</p>
+<pre><code>
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.security.authentication.AuthenticationManager;
+    import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+    import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+    import org.springframework.security.core.userdetails.User;
+    import org.springframework.security.core.userdetails.UserDetails;
+    import org.springframework.security.core.userdetails.UserDetailsService;
+    import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+    import org.springframework.security.crypto.password.PasswordEncoder;
+    import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+    import org.springframework.security.web.SecurityFilterChain;
+    import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+    
+    import com.ciq.demo.filter.JwtRequestFilter;
+    
+    @Configuration
+    public class SecurityConfig {
+    
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+            return new BCryptPasswordEncoder();
+        }
+    
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
+            http.csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/authenticate").permitAll()
+                    .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+            return http.build();
+        }
+    
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+            AuthenticationManagerBuilder authenticationManagerBuilder = 
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+            authenticationManagerBuilder.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
+            return authenticationManagerBuilder.build();
+        }
+    
+        @Bean
+        public UserDetailsService userDetailsService() {
+            InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+    
+            UserDetails user1 = User.withUsername("user")
+                .password("$2a$10$qc0I.MUIM4XBdAQA3zXZwO7xCJfN0mKxWyi9473CeJl.2nEq5XUQa")
+                .roles("USER")
+                .build();
+    
+            UserDetails admin = User.withUsername("admin")
+                .password("$2a$10$xXR2LQosVG6h9sc5vWj2MeuxWGLbv5ebHApYic13syjv2HLjGu7qa")
+                .roles("ADMIN")
+                .build();
+    
+            manager.createUser(user1);
+            manager.createUser(admin);
+    
+            return manager;
+        }
+    }
+    </code></pre>
+
+
+            </section>
+    
+            <section>
+                <h2>Authentication Controller</h2>
+                <p>The <code>AuthController</code> handles user login and token generation.</p>
+                <pre><code>
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.security.authentication.AuthenticationManager;
+    import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+    import org.springframework.security.core.Authentication;
+    import org.springframework.security.core.AuthenticationException;
+    import org.springframework.web.bind.annotation.*;
+    
+    @RestController
+    public class AuthController {
+    
+        @Autowired
+        private AuthenticationManager authenticationManager;
+    
+        @Autowired
+        private JwtUtil jwtUtil;
+    
+        @PostMapping("/authenticate")
+        public String generateToken(@RequestParam String username, @RequestParam String password) {
+            try {
+                Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password));
+                return jwtUtil.generateToken(username);
+            } catch (AuthenticationException e) {
+                throw new RuntimeException("Invalid username or password");
+            }
+        }
+    }
+                </code></pre>
+            </section>
+
+            <!-- Section: JWT Filter -->
+        <section>
+            <h3>JWT Filter</h3>
+            <p>The JWT filter intercepts incoming requests to validate the token and authenticate the user.</p>
+            <pre><code>
+    import java.io.IOException;
+    
+    import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+    import org.springframework.security.core.context.SecurityContextHolder;
+    import org.springframework.security.core.userdetails.UserDetails;
+    import org.springframework.security.core.userdetails.UserDetailsService;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.filter.OncePerRequestFilter;
+    
+    import com.ciq.demo.util.JwtUtil;
+    
+    import jakarta.servlet.FilterChain;
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+    @Component
+    public class JwtRequestFilter extends OncePerRequestFilter {
+    
+        private final JwtUtil jwtUtil;
+        private final UserDetailsService userDetailsService;
+    
+        public JwtRequestFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+            this.jwtUtil = jwtUtil;
+            this.userDetailsService = userDetailsService;
+        }
+    
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+                throws ServletException, IOException {
+            String token = request.getHeader("Authorization");
+    
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+                if (jwtUtil.validateToken(token)) {
+                    String username = jwtUtil.extractUsername(token);
+                    // Set user details here (Authentication object)
+                    System.out.println(username);
+                    // Load user details from the in-memory UserDetailsService
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    
+                    // Set the authentication in the context
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+    
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
+    
+            chain.doFilter(request, response);
+        }
+    }
+            </code></pre>
+        </section>
+    
+            <section>
+                <h2>Secured Controller</h2>
+                <p>A sample controller secured with JWT authentication.</p>
+                <pre><code>
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    @RestController
+    public class SecuredController {
+    
+        @GetMapping("/secured")
+        public String securedEndpoint() {
+            return "This is a secured endpoint!";
+        }
+    }
+                </code></pre>
+            </section>
+    
+            <section>
+                <h2>Testing the API</h2>
+                <p>Use tools like <a href="https://www.postman.com/" target="_blank">Postman</a> to test the API:</p>
+                <ul>
+                    <li>POST <code>/authenticate</code> with <code>username</code> and <code>password</code> to get a JWT token.</li>
+                    <li>Use the token in the Authorization header (Bearer token) to access <code>/secured</code>.</li>
+                </ul>
+            </section>
+    </main>
+
+    <div id="footer-container"></div>
+    <script src="../js/scripts.js"></script>
+</body>
+</html>

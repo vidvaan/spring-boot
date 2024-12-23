@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot Data Access with Spring JDBC</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Spring Boot Data Access with Spring JDBC</h2>
+      <p>This guide demonstrates how to build a complete CRUD application using Spring Boot and Spring JDBC. The application follows a layered architecture: Controller, Service, and Repository. We'll inject dependencies using <code>@Autowired</code> and test the APIs with JSON request data.</p>
+
+      <h3>1. Project Setup</h3>
+      <p>Include the necessary dependencies for Spring Boot and Spring JDBC in your <code>pom.xml</code> file:</p>
+      <pre><code>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;mysql&lt;/groupId&gt;
+        &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+
+      </code></pre>
+
+      <h3>2. Database Configuration</h3>
+      <p>Configure your database in the <code>application.properties</code> file:</p>
+      <pre><code>
+spring.datasource.url=jdbc:mysql://localhost:3306/employee_db
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+      </code></pre>
+
+      <h3>3. Employee Table Schema</h3>
+      <p>Create an <code>employee</code> table in your MySQL database:</p>
+      <pre><code>
+CREATE TABLE employee (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    department VARCHAR(100),
+    salary DOUBLE
+);
+      </code></pre>
+
+      <h3>4. Model Class</h3>
+      <p>Create a Java class to represent the <code>Employee</code> entity:</p>
+      <pre><code>
+public class Employee {
+    private int id;
+    private String name;
+    private String department;
+    private double salary;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <h3>5. Repository Layer</h3>
+      <p>The repository layer interacts directly with the database using Spring JDBC:</p>
+      <pre><code>
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public class EmployeeRepository {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    private final RowMapper&lt;Employee&gt; rowMapper = (rs, rowNum) -&gt; {
+        Employee employee = new Employee();
+        employee.setId(rs.getInt("id"));
+        employee.setName(rs.getString("name"));
+        employee.setDepartment(rs.getString("department"));
+        employee.setSalary(rs.getDouble("salary"));
+        return employee;
+    };
+
+    public List&lt;Employee&gt; findAll() {
+        String sql = "SELECT * FROM employee";
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public Employee findById(int id) {
+        String sql = "SELECT * FROM employee WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, rowMapper, id);
+    }
+
+    public int save(Employee employee) {
+        String sql = "INSERT INTO employee (name, department, salary) VALUES (?, ?, ?)";
+        return jdbcTemplate.update(sql, employee.getName(), employee.getDepartment(), employee.getSalary());
+    }
+
+    public int update(Employee employee) {
+        String sql = "UPDATE employee SET name = ?, department = ?, salary = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, employee.getName(), employee.getDepartment(), employee.getSalary(), employee.getId());
+    }
+
+    public int deleteById(int id) {
+        String sql = "DELETE FROM employee WHERE id = ?";
+        return jdbcTemplate.update(sql, id);
+    }
+}
+      </code></pre>
+
+      <h3>6. Service Layer</h3>
+      <p>The service layer contains business logic and interacts with the repository layer:</p>
+      <pre><code>
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class EmployeeService {
+
+    @Autowired
+    private EmployeeRepository repository;
+
+    public List&lt;Employee&gt; getAllEmployees() {
+        return repository.findAll();
+    }
+
+    public Employee getEmployeeById(int id) {
+        return repository.findById(id);
+    }
+
+    public int addEmployee(Employee employee) {
+        return repository.save(employee);
+    }
+
+    public int updateEmployee(Employee employee) {
+        return repository.update(employee);
+    }
+
+    public int deleteEmployee(int id) {
+        return repository.deleteById(id);
+    }
+}
+      </code></pre>
+
+      <h3>7. REST Controller</h3>
+      <p>The REST controller handles incoming HTTP requests and interacts with the service layer:</p>
+      <pre><code>
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeService service;
+
+    @GetMapping
+    public List&lt;Employee&gt; getAllEmployees() {
+        return service.getAllEmployees();
+    }
+
+    @GetMapping("/{id}")
+    public Employee getEmployeeById(@PathVariable int id) {
+        return service.getEmployeeById(id);
+    }
+
+    @PostMapping
+    public String addEmployee(@RequestBody Employee employee) {
+        service.addEmployee(employee);
+        return "Employee added successfully!";
+    }
+
+    @PutMapping("/{id}")
+    public String updateEmployee(@PathVariable int id, @RequestBody Employee employee) {
+        employee.setId(id);
+        service.updateEmployee(employee);
+        return "Employee updated successfully!";
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteEmployee(@PathVariable int id) {
+        service.deleteEmployee(id);
+        return "Employee deleted successfully!";
+    }
+}
+      </code></pre>
+
+      <h3>8. Testing the REST APIs with JSON Request Data</h3>
+      <p>Use tools like <code>Postman</code> to test the APIs. Below are some sample JSON request data:</p>
+
+      <h4>Adding a New Employee</h4>
+      <pre><code>
+POST /api/employees
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "department": "IT",
+    "salary": 50000
+}
+      </code></pre>
+
+      <h4>Updating an Existing Employee</h4>
+      <pre><code>
+PUT /api/employees/1
+Content-Type: application/json
+
+{
+    "name": "Jane Doe",
+    "department": "HR",
+    "salary": 55000
+}
+      </code></pre>
+
+      <h4>Deleting an Employee</h4>
+      <pre><code>
+DELETE /api/employees/1
+      </code></pre>
+
+      <h3>9. Summary</h3>
+      <table border="1" cellpadding="10">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Responsibility</th>
+            <th>Key Features</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Model</td>
+            <td>Represents the data</td>
+            <td>Employee class with fields</td>
+          </tr>
+          <tr>
+            <td>Repository</td>
+            <td>Interacts with the database</td>
+            <td>SQL queries with JdbcTemplate</td>
+          </tr>
+          <tr>
+            <td>Service</td>
+            <td>Contains business logic</td>
+            <td>Interacts with repository</td>
+          </tr>
+          <tr>
+            <td>Controller</td>
+            <td>Handles HTTP requests</td>
+            <td>REST APIs for CRUD operations</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

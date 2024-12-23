@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thymeleaf Tutorial: Building Dynamic Web Pages</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <!-- Section: Introduction to Thymeleaf -->
+    <section>
+      <h2>Introduction to Thymeleaf</h2>
+      <p>Thymeleaf is a modern server-side Java template engine for web and standalone environments. It allows you to render dynamic content in HTML templates and can be easily integrated with Spring Boot.</p>
+
+      <h3>1. Thymeleaf Syntax</h3>
+      <p>Thymeleaf uses special attributes to manipulate HTML content dynamically:</p>
+      <ul>
+        <li><strong>th:text</strong>: Replaces text inside an element.</li>
+        <li><strong>th:if</strong>: Conditionally renders an element if the expression evaluates to true.</li>
+        <li><strong>th:each</strong>: Iterates over collections and renders elements for each item.</li>
+        <li><strong>th:href</strong>: Dynamically sets the value of the href attribute.</li>
+        <li><strong>th:src</strong>: Dynamically sets the value of the src attribute.</li>
+      </ul>
+
+      <h4>Example Code</h4>
+      <pre><code>
+        &lt;div th:text="${message}"&gt;This is a default message&lt;/div&gt;
+      </code></pre>
+      <p>This will replace the content of the <code>&lt;div&gt;</code> tag with the value of the <code>message</code> attribute passed from the controller.</p>
+
+      <h3>2. Thymeleaf Expressions</h3>
+      <p>Thymeleaf expressions are evaluated within the HTML tags, making them easy to use for dynamic content.</p>
+      <ul>
+        <li><strong>${expression}</strong>: Retrieves the value of the expression.</li>
+        <li><strong>#{message}</strong>: Retrieves messages from properties files.</li>
+        <li><strong>*{expression}</strong>: Refers to an object’s properties.</li>
+      </ul>
+
+      <h4>Example Code:</h4>
+      <pre><code>
+        &lt;span th:text="${'Welcome, ' + user.name}"&gt;User&lt;/span&gt;
+      </code></pre>
+      <p>This will display "Welcome, John" if the <code>user.name</code> value is "John".</p>
+
+    </section>
+
+    <!-- Section: Conditional Rendering -->
+    <section>
+      <h2>Conditional Rendering with Thymeleaf</h2>
+      <p>Thymeleaf provides <code>th:if</code> and <code>th:unless</code> for conditionally rendering elements based on the evaluated expression.</p>
+
+      <h3>1. Using th:if</h3>
+      <p>The <code>th:if</code> attribute will render the element only if the condition evaluates to true:</p>
+      <pre><code>
+        &lt;div th:if="${user.active}"&gt;User is active&lt;/div&gt;
+      </code></pre>
+      <p>This element will only be rendered if the <code>user.active</code> property is true.</p>
+
+      <h3>2. Using th:unless</h3>
+      <p>The <code>th:unless</code> attribute will render the element if the condition evaluates to false:</p>
+      <pre><code>
+        &lt;div th:unless="${user.active}"&gt;User is not active&lt;/div&gt;
+      </code></pre>
+      <p>This element will only be rendered if the <code>user.active</code> property is false.</p>
+
+    </section>
+
+    <!-- Section: Iterating Over Collections -->
+    <section>
+      <h2>Iterating Over Collections</h2>
+      <p>You can iterate over a collection (list, array, etc.) using the <code>th:each</code> attribute.</p>
+
+      <h3>Example: Iterating Over a List of Users</h3>
+      <pre><code>
+        &lt;ul&gt;
+          &lt;li th:each="user : ${users}" th:text="${user.name}"&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      </code></pre>
+      <p>This will iterate over the <code>users</code> list and render each user's <code>name</code> in a list item.</p>
+
+      <h3>Example: Iterating Over a Map</h3>
+      <pre><code>
+        &lt;ul&gt;
+          &lt;li th:each="entry : ${map}" th:text="'Key: ' + ${entry.key} + ', Value: ' + ${entry.value}"&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      </code></pre>
+      <p>This will iterate over a map and display both the key and the value in a list item.</p>
+    </section>
+
+    <!-- Section: Form Binding -->
+    <section>
+      <h2>Form Binding with Thymeleaf</h2>
+      <p>Thymeleaf allows you to bind forms to Java objects. Here’s an example of how to use <code>th:field</code> to bind form fields to a model attribute.</p>
+
+      <h3>Example: Binding a Form</h3>
+      <pre><code>
+        &lt;form th:action="@{/user/save}" th:object="${user}" method="post"&gt;
+          &lt;label for="name"&gt;Name&lt;/label&gt;
+          &lt;input type="text" id="name" th:field="*{name}" /&gt;
+
+          &lt;label for="email"&gt;Email&lt;/label&gt;
+          &lt;input type="email" id="email" th:field="*{email}" /&gt;
+
+          &lt;button type="submit"&gt;Save&lt;/button&gt;
+        &lt;/form&gt;
+      </code></pre>
+      <p>This will bind the form fields to the <code>name</code> and <code>email</code> properties of the <code>user</code> object.</p>
+    </section>
+
+    <!-- Section: Links and Resources -->
+    <section>
+      <h2>Links and Resources</h2>
+      <p>For more information on Thymeleaf, visit the official documentation:</p>
+      <ul>
+        <li><a th:href="@{https://www.thymeleaf.org/}" target="_blank">Thymeleaf Official Website</a></li>
+        <li><a th:href="@{https://www.baeldung.com/thymeleaf}" target="_blank">Baeldung Thymeleaf Tutorials</a></li>
+      </ul>
+    </section>
+    <section>
+    <h1>Thymeleaf Code Snippets</h1>
+
+    <!-- Example 1: Basic Thymeleaf Syntax for Variables -->
+    <section>
+        <h2>Example 1: Basic Thymeleaf Syntax for Variables</h2>
+        <pre><code>
+&lt;span th:text="${username}"&gt;Guest&lt;/span&gt;
+&lt;span th:text="${#dates.format(currentDate, 'yyyy-MM-dd')}"&gt;2024-12-09&lt;/span&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 2: Conditional Logic with Thymeleaf -->
+    <section>
+        <h2>Example 2: Conditional Logic with Thymeleaf</h2>
+        <pre><code>
+&lt;div th:if="${user != null}"&gt;
+    &lt;p&gt;Hello, &lt;span th:text="${user.name}"&gt;User&lt;/span&gt;! Welcome back.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div th:unless="${user != null}"&gt;
+    &lt;p&gt;Please log in to access your account.&lt;/p&gt;
+&lt;/div&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 3: Iterating Over a List with Thymeleaf -->
+    <section>
+        <h2>Example 3: Iterating Over a List with Thymeleaf</h2>
+        <pre><code>
+&lt;ul&gt;
+    &lt;li th:each="user : ${users}"&gt;
+        &lt;span th:text="${user.name}"&gt;User Name&lt;/span&gt; - 
+        &lt;span th:text="${user.email}"&gt;User Email&lt;/span&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 4: Form Handling with Thymeleaf -->
+    <section>
+        <h2>Example 4: Form Handling with Thymeleaf</h2>
+        <pre><code>
+&lt;form th:action="@{/register}" method="post" th:object="${user}"&gt;
+    &lt;label for="name"&gt;Name:&lt;/label&gt;
+    &lt;input type="text" id="name" th:field="*{name}" /&gt;&lt;br&gt;
+    
+    &lt;label for="email"&gt;Email:&lt;/label&gt;
+    &lt;input type="email" id="email" th:field="*{email}" /&gt;&lt;br&gt;
+    
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 5: URL Fragment with Thymeleaf -->
+    <section>
+        <h2>Example 5: URL Fragment with Thymeleaf</h2>
+        <pre><code>
+&lt;a th:href="@{/user/{id}(id=${user.id})}"&gt;View Profile&lt;/a&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 6: Default Value with Thymeleaf -->
+    <section>
+        <h2>Example 6: Default Value with Thymeleaf</h2>
+        <pre><code>
+&lt;p&gt;Name: &lt;span th:text="${user.name} ?: 'Default User'"&gt;John Doe&lt;/span&gt;&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 7: Using Expressions for Arithmetic -->
+    <section>
+        <h2>Example 7: Using Expressions for Arithmetic</h2>
+        <pre><code>
+&lt;p&gt;5 + 3 = &lt;span th:text="${5 + 3}"&gt;8&lt;/span&gt;&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 8: Using Thymeleaf Literals -->
+    <section>
+        <h2>Example 8: Using Thymeleaf Literals</h2>
+        <pre><code>
+&lt;p th:text="'Hello, ' + ${username}"&gt;Hello, User&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 9: Adding Classes Conditionally -->
+    <section>
+        <h2>Example 9: Adding Classes Conditionally</h2>
+        <pre><code>
+&lt;button th:classappend="${isActive} ? 'active' : 'inactive'"&gt;Submit&lt;/button&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 10: Text Formatting with Thymeleaf -->
+    <section>
+        <h2>Example 10: Text Formatting with Thymeleaf</h2>
+        <pre><code>
+&lt;p th:text="${#strings.capitalize('hello world')}"&gt;hello world&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 11: Inline Text with Expressions -->
+    <section>
+        <h2>Example 11: Inline Text with Expressions</h2>
+        <pre><code>
+&lt;p th:text="'Hello, ' + ${user.name}"&gt;Hello, User&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 12: Handling List of Strings -->
+    <section>
+        <h2>Example 12: Handling List of Strings</h2>
+        <pre><code>
+&lt;ul&gt;
+    &lt;li th:each="item : ${items}" th:text="${item}"&gt;Item&lt;/li&gt;
+&lt;/ul&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 13: Iterating with Index -->
+    <section>
+        <h2>Example 13: Iterating with Index</h2>
+        <pre><code>
+&lt;ul&gt;
+    &lt;li th:each="item, iterStat : ${items}" th:text="${iterStat.index + 1 + '. ' + item}"&gt;Item&lt;/li&gt;
+&lt;/ul&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 14: Creating Dynamic URLs -->
+    <section>
+        <h2>Example 14: Creating Dynamic URLs</h2>
+        <pre><code>
+&lt;a th:href="@{/product/{id}(id=${product.id})}"&gt;Product Details&lt;/a&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 15: Accessing HashMap -->
+    <section>
+        <h2>Example 15: Accessing HashMap</h2>
+        <pre><code>
+&lt;p th:text="${map['key']}"&gt;Value&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 16: Using #fields to Bind Form Elements -->
+    <section>
+        <h2>Example 16: Using #fields to Bind Form Elements</h2>
+        <pre><code>
+&lt;form th:action="@{/submit}" th:object="${form}"&gt;
+    &lt;input type="text" th:field="*{name}" /&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 17: Switch Statement in Thymeleaf -->
+    <section>
+        <h2>Example 17: Switch Statement in Thymeleaf</h2>
+        <pre><code>
+&lt;p th:switch="${status}"&gt;
+    &lt;span th:case="'active'"&gt;Active&lt;/span&gt;
+    &lt;span th:case="'inactive'"&gt;Inactive&lt;/span&gt;
+    &lt;span th:case="*"&gt;Unknown&lt;/span&gt;
+&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 18: Iterating Over Map Entries -->
+    <section>
+        <h2>Example 18: Iterating Over Map Entries</h2>
+        <pre><code>
+&lt;ul&gt;
+    &lt;li th:each="entry : ${map}"&gt;
+        &lt;span th:text="${entry.key}"&gt;Key&lt;/span&gt;: 
+        &lt;span th:text="${entry.value}"&gt;Value&lt;/span&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 19: Working with Date and Time -->
+    <section>
+        <h2>Example 19: Working with Date and Time</h2>
+        <pre><code>
+&lt;p th:text="${#dates.format(currentDate, 'yyyy-MM-dd')}"&gt;2024-12-09&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 20: Boolean Expressions -->
+    <section>
+        <h2>Example 20: Boolean Expressions</h2>
+        <pre><code>
+&lt;p th:text="${isTrue ? 'Yes' : 'No'}"&gt;Yes&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 21: Using Fragment with Thymeleaf -->
+    <section>
+        <h2>Example 21: Using Fragment with Thymeleaf</h2>
+        <pre><code>
+&lt;div th:replace="fragments/header :: header"&gt;&lt;/div&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 22: Escaping HTML -->
+    <section>
+        <h2>Example 22: Escaping HTML</h2>
+        <pre><code>
+&lt;p th:text="${message}"&gt;Hello, &lt;script&gt;alert('XSS');&lt;/script&gt;&lt;/p&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 23: Handling List of Objects -->
+    <section>
+        <h2>Example 23: Handling List of Objects</h2>
+        <pre><code>
+&lt;ul&gt;
+    &lt;li th:each="product : ${products}"&gt;
+        &lt;span th:text="${product.name}"&gt;Product Name&lt;/span&gt; - 
+        &lt;span th:text="${product.price}"&gt;Product Price&lt;/span&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 24: Attribute Manipulation -->
+    <section>
+        <h2>Example 24: Attribute Manipulation</h2>
+        <pre><code>
+&lt;button th:attr="disabled=${isDisabled}"&gt;Click Me&lt;/button&gt;
+        </code></pre>
+    </section>
+
+    <hr>
+
+    <!-- Example 25: Dynamic Classes and Styling -->
+    <section>
+        <h2>Example 25: Dynamic Classes and Styling</h2>
+        <pre><code>
+&lt;div th:classappend="${isError} ? 'error' : 'success'"&gt;Message&lt;/div&gt;
+        </code></pre>
+    </section>
+
+
+
+    </section>
+  </main>
+
+  <!-- Placeholder for Footer -->
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="empSection">
+
+    </div>
+
+    <div>
+      
+         <table border="1px">
+            <thead>
+                <tr>
+                    <th>Sid</th>
+                    <th>Sname</th>
+                    <th>Sfee</th>
+                </tr>
+            </thead>
+            <tbody id="tabBody">
+
+            </tbody>
+         </table>
+
+    </div>
+    
+    <script>
+     
+     let students = [
+        {
+           sid:1,
+           sname:"Balaji",
+           sfee: 25000.00
+        },
+        {
+           sid:2,
+           sname:"Ram",
+           sfee: 25000.00
+        },
+        {
+           sid:3,
+           sname:"Raja",
+           sfee: 25000.00
+        },
+        {
+           sid:4,
+           sname:"Roy",
+           sfee: 25000.00
+        },
+        {
+           sid:5,
+           sname:"Tom",
+           sfee: 25000.00
+        },
+
+
+
+     ];
+
+
+     let employee = {
+        eid : 1001,
+        ename : "Balaji",
+        esal : 50000.00
+     }
+
+     console.log(employee);
+
+
+     console.log(students)
+
+     var empSection = document.getElementById("empSection");
+
+     var ulEle = document.createElement("ul");
+    
+     ulEle.innerHTML = "<li> Eid : "+employee.eid+"</li>"+"<li> Ename : "+employee.ename+"</li>"+"<li> Esal : "+employee.esal+"</li>";
+
+
+     empSection.append(ulEle);
+      
+      let tabBody = document.getElementById("tabBody");
+      for(let student of students){
+        var tabRow = document.createElement("tr");
+        tabRow.innerHTML = "<td>"+student.sid+"</td>"+"<td>"+student.sname+"</td>"+"<td>"+student.sfee+"</td>";
+        tabBody.append(tabRow);  
+    }
+     
+    </script>
+</body>
+</html>

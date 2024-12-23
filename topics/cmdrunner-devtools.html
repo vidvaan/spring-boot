@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CommandLineRunner and DevTools in Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>CommandLineRunner and DevTools in Spring Boot</h2>
+      <p>Spring Boot provides features like <strong>CommandLineRunner</strong> to execute code at application startup and <strong>DevTools</strong> to simplify the development process with features like automatic restarts and live reload.</p>
+
+      <!-- Section: CommandLineRunner -->
+      <section>
+        <h3>1. CommandLineRunner</h3>
+        <p>The <code>CommandLineRunner</code> interface is used to execute logic after the Spring Boot application starts. It is commonly used for tasks such as testing, initializing data, or executing one-time startup logic.</p>
+
+        <h4>1.1 Adding CommandLineRunner</h4>
+        <p>Implement the <code>CommandLineRunner</code> interface in a Spring Bean:</p>
+        <pre><code>
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyCommandLineRunner implements CommandLineRunner {
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("Application started successfully!");
+        System.out.println("Arguments: ");
+        for (String arg : args) {
+            System.out.println(arg);
+        }
+    }
+}
+        </code></pre>
+
+        <p>When you start the application, the <code>run()</code> method is executed automatically.</p>
+
+        <h4>1.2 Using Multiple CommandLineRunners</h4>
+        <p>You can define multiple <code>CommandLineRunner</code> beans in your application. They will run in the order defined by the <code>@Order</code> annotation:</p>
+        <pre><code>
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+@Component
+@Order(1)
+public class FirstRunner implements CommandLineRunner {
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("First CommandLineRunner executed");
+    }
+}
+
+@Component
+@Order(2)
+public class SecondRunner implements CommandLineRunner {
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("Second CommandLineRunner executed");
+    }
+}
+        </code></pre>
+
+      </section>
+
+      <!-- Section: DevTools -->
+      <section>
+        <h3>2. DevTools</h3>
+        <p><strong>Spring Boot DevTools</strong> is a development-time feature that provides live reload, automatic restarts, and additional debugging utilities to enhance developer productivity.</p>
+
+        <h4>2.1 Adding DevTools Dependency</h4>
+        <p>To enable DevTools, add the following dependency in your <code>pom.xml</code>:</p>
+        <pre><code>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-devtools&lt;/artifactId&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;optional&gt;true&lt;/optional&gt;
+&lt;/dependency&gt;
+        </code></pre>
+
+        <h4>2.2 Features of DevTools</h4>
+        <ul>
+          <li><strong>Automatic Restart:</strong> Automatically restarts the application whenever a classpath file is changed.</li>
+          <li><strong>Live Reload:</strong> Works with browsers to reload the application on changes.</li>
+          <li><strong>Property Overrides:</strong> Enables additional configurations specific to development.</li>
+        </ul>
+
+        <h4>2.3 Excluding DevTools in Production</h4>
+        <p>DevTools is automatically disabled in production environments when running a fully packaged application (e.g., <code>.jar</code> or <code>.war</code>).</p>
+
+        <h4>2.4 Disabling Automatic Restart</h4>
+        <p>If you want to disable automatic restarts provided by DevTools, set the following property in <code>application.properties</code>:</p>
+        <pre><code>
+spring.devtools.restart.enabled=false
+        </code></pre>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>3. Summary</h3>
+        <p><strong>CommandLineRunner:</strong></p>
+        <ul>
+          <li>Used to execute logic at application startup.</li>
+          <li>Supports multiple runners with defined execution order.</li>
+        </ul>
+
+        <p><strong>DevTools:</strong></p>
+        <ul>
+          <li>Improves developer productivity with features like automatic restart and live reload.</li>
+          <li>Easily excluded in production environments.</li>
+        </ul>
+      </section>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

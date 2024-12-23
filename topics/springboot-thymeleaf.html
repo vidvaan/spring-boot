@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot Thymeleaf CRUD Application</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+        <h2>Spring Boot with Thymeleaf - Hello World</h2>
+        <p>This is a simple demonstration of a Hello World application using Spring Boot and Thymeleaf.</p>
+  
+        <h3>1. Setup</h3>
+  
+        <h4>1.1 Maven Dependencies</h4>
+        <p>In your <code>pom.xml</code>, add the following dependencies:</p>
+        <pre><code>
+  &lt;dependencies&gt;
+      &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+      &lt;/dependency&gt;
+      &lt;dependency&gt;
+          &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+          &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+      &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+        </code></pre>
+  
+        <h4>1.2 Application Properties</h4>
+        <p>Add basic configuration in the <code>application.properties</code>:</p>
+        <pre><code>
+  spring.thymeleaf.cache=false
+        </code></pre>
+  
+        <h3>2. Directory Structure</h3>
+        <pre><code>
+  src/
+  ├── main/
+  │   ├── java/
+  │   │   └── com/example/helloworld/
+  │   │       ├── HelloWorldApplication.java
+  │   ├── resources/
+  │   │   ├── application.properties
+  │   │   ├── templates/
+  │   │       └── index.html
+  </code></pre>
+  
+        <h3>3. Implementation</h3>
+  
+        <h4>3.1 Spring Boot Application</h4>
+        <pre><code>
+  package com.example.helloworld;
+  
+  import org.springframework.boot.SpringApplication;
+  import org.springframework.boot.autoconfigure.SpringBootApplication;
+  import org.springframework.stereotype.Controller;
+  import org.springframework.ui.Model;
+  import org.springframework.web.bind.annotation.GetMapping;
+  
+  @SpringBootApplication
+  public class HelloWorldApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(HelloWorldApplication.class, args);
+      }
+  }
+  
+  @Controller
+  class HelloWorldController {
+  
+      @GetMapping("/")
+      public String helloWorld(Model model) {
+          model.addAttribute("message", "Hello, World from Thymeleaf!");
+          return "index";
+      }
+  }
+        </code></pre>
+  
+        <h3>4. Thymeleaf Template (index.html)</h3>
+        <p>The Thymeleaf template <code>index.html</code> displays the message passed from the controller:</p>
+        <pre><code>
+  &lt;!DOCTYPE html&gt;
+  &lt;html xmlns:th="http://www.thymeleaf.org"&gt;
+  &lt;head&gt;
+      &lt;meta charset="UTF-8"&gt;
+      &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+      &lt;title&gt;Spring Boot Thymeleaf Hello World&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+      &lt;h1&gt;Spring Boot Thymeleaf Hello World&lt;/h1&gt;
+      &lt;p th:text="${message}"&gt;This will display the message from Spring Boot.&lt;/p&gt;
+  &lt;/body&gt;
+  &lt;/html&gt;
+        </code></pre>
+  
+        <h3>5. Running the Application</h3>
+        <p>After starting your Spring Boot application, visit <code>http://localhost:8080</code> in your browser. You should see the message "Hello, World from Thymeleaf!" rendered by Thymeleaf.</p>
+  
+        <h3>6. Summary</h3>
+        <p>This is a basic example of integrating Thymeleaf with Spring Boot. You created a simple "Hello, World!" application where the message is passed from the controller to the view.</p>
+      </section>
+    <section>
+      <h2>Spring Boot Thymeleaf CRUD Application</h2>
+      <p>This guide demonstrates how to build a CRUD (Create, Read, Update, Delete) application using Spring Boot with Thymeleaf templates.</p>
+
+      <h3>1. Setup</h3>
+
+      <h4>1.1 Maven Dependencies</h4>
+      <p>Add the following dependencies in your <code>pom.xml</code>:</p>
+      <pre><code>
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.h2database&lt;/groupId&gt;
+        &lt;artifactId&gt;h2&lt;/artifactId&gt;
+        &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+      </code></pre>
+
+      <h4>1.2 Configuration</h4>
+      <p>Update the <code>application.properties</code> file:</p>
+      <pre><code>
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.thymeleaf.cache=false
+      </code></pre>
+
+      <h3>2. Directory Structure</h3>
+      <p>Your project should have the following structure:</p>
+      <pre><code>
+src/
+├── main/
+│   ├── java/
+│   │   ├── com.example.demo/
+│   │       ├── controller/
+│   │       ├── model/
+│   │       ├── repository/
+│   │       ├── service/
+│   ├── resources/
+│   │   ├── application.properties
+│   │   ├── templates/
+│   │       ├── list.html
+│   │       ├── add.html
+│   │       ├── edit.html
+      </code></pre>
+
+      <h3>3. Implementation</h3>
+
+      <h4>3.1 Model</h4>
+      <pre><code>
+package com.example.demo.model;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String department;
+    private Double salary;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <h4>3.2 Repository</h4>
+      <pre><code>
+package com.example.demo.repository;
+
+import com.example.demo.model.Employee;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmployeeRepository extends JpaRepository&lt;Employee, Long&gt; {
+}
+      </code></pre>
+
+      <h4>3.3 Controller</h4>
+      <pre><code>
+package com.example.demo.controller;
+
+import com.example.demo.model.Employee;
+import com.example.demo.repository.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequestMapping("/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeRepository repository;
+
+    @GetMapping
+    public String listEmployees(Model model) {
+        model.addAttribute("employees", repository.findAll());
+        return "list";
+    }
+
+    @GetMapping("/add")
+    public String addEmployeeForm(Model model) {
+        model.addAttribute("employee", new Employee());
+        return "add";
+    }
+
+    @PostMapping
+    public String saveEmployee(@ModelAttribute Employee employee) {
+        repository.save(employee);
+        return "redirect:/employees";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String editEmployeeForm(@PathVariable Long id, Model model) {
+        Employee employee = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Invalid employee Id:" + id));
+        model.addAttribute("employee", employee);
+        return "edit";
+    }
+
+    @PostMapping("/update/{id}")
+    public String updateEmployee(@PathVariable Long id, @ModelAttribute Employee employee) {
+        employee.setId(id);
+        repository.save(employee);
+        return "redirect:/employees";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String deleteEmployee(@PathVariable Long id) {
+        repository.deleteById(id);
+        return "redirect:/employees";
+    }
+}
+      </code></pre>
+
+      <h4>3.4 Thymeleaf Templates</h4>
+      <h5><code>list.html</code></h5>
+      <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th="http://www.thymeleaf.org"&gt;
+&lt;head&gt;
+    &lt;title&gt;Employee List&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Employees&lt;/h1&gt;
+    &lt;a th:href="@{/employees/add}"&gt;Add New Employee&lt;/a&gt;
+    &lt;table border="1"&gt;
+        &lt;tr&gt;
+            &lt;th&gt;ID&lt;/th&gt;
+            &lt;th&gt;Name&lt;/th&gt;
+            &lt;th&gt;Department&lt;/th&gt;
+            &lt;th&gt;Salary&lt;/th&gt;
+            &lt;th&gt;Actions&lt;/th&gt;
+        &lt;/tr&gt;
+        &lt;tr th:each="employee : ${employees}"&gt;
+            &lt;td th:text="${employee.id}"&gt;&lt;/td&gt;
+            &lt;td th:text="${employee.name}"&gt;&lt;/td&gt;
+            &lt;td th:text="${employee.department}"&gt;&lt;/td&gt;
+            &lt;td th:text="${employee.salary}"&gt;&lt;/td&gt;
+            &lt;td&gt;
+                &lt;a th:href="@{/employees/edit/{id}(id=${employee.id})}"&gt;Edit&lt;/a&gt; |
+                &lt;a th:href="@{/employees/delete/{id}(id=${employee.id})}"&gt;Delete&lt;/a&gt;
+            &lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+      </code></pre>
+
+      <h5><code>add.html</code></h5>
+      <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th="http://www.thymeleaf.org"&gt;
+&lt;head&gt;
+    &lt;title&gt;Add Employee&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Add Employee&lt;/h1&gt;
+    &lt;form th:action="@{/employees}" method="post"&gt;
+        Name: &lt;input type="text" name="name" required&gt;&lt;br&gt;
+        Department: &lt;input type="text" name="department" required&gt;&lt;br&gt;
+        Salary: &lt;input type="number" step="0.01" name="salary" required&gt;&lt;br&gt;
+        &lt;button type="submit"&gt;Save&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+      </code></pre>
+
+      <h5><code>edit.html</code></h5>
+      <pre><code>
+&lt;!DOCTYPE html&gt;
+&lt;html xmlns:th="http://www.thymeleaf.org"&gt;
+&lt;head&gt;
+    &lt;title&gt;Edit Employee&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Edit Employee&lt;/h1&gt;
+    &lt;form th:action="@{/employees/update/{id}(id=${employee.id})}" method="post"&gt;
+        Name: &lt;input type="text" th:value="${employee.name}" name="name" required&gt;&lt;br&gt;
+        Department: &lt;input type="text" th:value="${employee.department}" name="department" required&gt;&lt;br&gt;
+        Salary: &lt;input type="number" step="0.01" th:value="${employee.salary}" name="salary" required&gt;&lt;br&gt;
+        &lt;button type="submit"&gt;Update&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+      </code></pre>
+
+      <h3>4. Running the Application</h3>
+      <p>Start the application and access <code>http://localhost:8080/employees</code> to perform CRUD operations.</p>
+
+      <h3>5. Summary</h3>
+      <p>This example shows how to integrate Spring Boot and Thymeleaf to build a dynamic and interactive CRUD application.</p>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

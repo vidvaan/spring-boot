@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mocking Services with Mockito in Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Mocking Services with Mockito in Spring Boot</h2>
+      <p>Mocking is an essential technique for unit testing in Spring Boot. Mockito is a powerful framework used for creating mock objects and verifying their interactions in tests. This guide explains how to mock dependencies in Spring Boot services using Mockito.</p>
+
+      <!-- Section: Introduction to Mockito -->
+      <section>
+        <h3>1. Introduction to Mockito</h3>
+        <p><code>Mockito</code> is a popular Java framework used for creating mock objects in unit tests. It helps in isolating the unit being tested by replacing real dependencies with mock objects. It is especially useful for mocking service classes, repositories, and other components that interact with external systems.</p>
+
+        <h4>1.1. Why Use Mockito?</h4>
+        <p>Mockito is used for the following reasons:</p>
+        <ul>
+          <li><strong>Isolate units:</strong> Test a specific unit of code by mocking its dependencies.</li>
+          <li><strong>Control behavior:</strong> Define specific behavior for the mock objects, such as return values or exceptions.</li>
+          <li><strong>Verify interactions:</strong> Ensure that the mock objects are used as expected, such as verifying method calls.</li>
+        </ul>
+      </section>
+
+      <!-- Section: Mocking Dependencies in Spring Boot Tests -->
+      <section>
+        <h3>2. Mocking Dependencies in Spring Boot Tests</h3>
+        <p>In Spring Boot, services often depend on other services or repositories. With Mockito, we can mock these dependencies to focus on testing the logic of the service itself.</p>
+
+        <h4>2.1. Example: Mocking a Service Dependency</h4>
+        <p>Suppose we have a <code>ProductService</code> that depends on a <code>ProductRepository</code> for CRUD operations. We want to test the service without involving the actual database, so we mock the repository.</p>
+
+        <pre><code>
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+public class ProductServiceTest {
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @InjectMocks
+    private ProductService productService;
+
+    @Test
+    void testFindProductById() {
+        // Arrange: Mock repository behavior
+        Product mockProduct = new Product(1L, "Laptop", 1000.0);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(mockProduct));
+
+        // Act: Call the service method
+        Product result = productService.findProductById(1L);
+
+        // Assert: Verify the result
+        assertNotNull(result);
+        assertEquals("Laptop", result.getName());
+        assertEquals(1000.0, result.getPrice());
+
+        // Verify interaction with repository
+        verify(productRepository, times(1)).findById(1L);
+    }
+}
+        </code></pre>
+
+        <h4>Explanation of Annotations:</h4>
+        <ul>
+          <li><strong>@Mock:</strong> Creates a mock instance of the <code>ProductRepository</code>.</li>
+          <li><strong>@InjectMocks:</strong> Injects the mock <code>ProductRepository</code> into the <code>ProductService</code>.</li>
+          <li><strong>@Test:</strong> Marks the method as a unit test.</li>
+        </ul>
+
+        <h4>2.2. Mocking Behavior</h4>
+        <p>Mockito allows you to define the behavior of mock objects. In the example above, we used <code>when(...).thenReturn(...)</code> to specify that when <code>findById(1L)</code> is called on the <code>productRepository</code>, it should return a mock product.</p>
+
+        <h4>2.3. Verifying Interactions</h4>
+        <p>We used the <code>verify()</code> method to check that the <code>findById(1L)</code> method was called exactly once. This helps ensure that the service interacts with its dependencies as expected.</p>
+      </section>
+
+      <!-- Section: Mocking Service Method Calls -->
+      <section>
+        <h3>3. Mocking Service Method Calls</h3>
+        <p>In addition to mocking repositories, you may need to mock service method calls within a service class. Mockito makes it easy to mock these method calls to simulate various scenarios, such as successful results, exceptions, or timeouts.</p>
+
+        <h4>3.1. Example: Mocking Service Method Calls</h4>
+        <p>Assume we have a <code>ProductService</code> that calls another method <code>calculateDiscount()</code> to calculate a discount for a product. We can mock this method to return a fixed value.</p>
+
+        <pre><code>
+import static org.mockito.Mockito.*;
+
+public class ProductServiceTest {
+
+    @Mock
+    private ProductService productService;
+
+    @Test
+    void testCalculateDiscount() {
+        // Arrange: Mock calculateDiscount method
+        when(productService.calculateDiscount(any(Product.class))).thenReturn(100.0);
+
+        // Act: Call the service method
+        double discount = productService.calculateDiscount(new Product(1L, "Laptop", 1000.0));
+
+        // Assert: Verify the mocked method behavior
+        assertEquals(100.0, discount);
+
+        // Verify interaction
+        verify(productService, times(1)).calculateDiscount(any(Product.class));
+    }
+}
+        </code></pre>
+
+        <h4>Explanation of Methods:</h4>
+        <ul>
+          <li><strong>when(...).thenReturn(...):</strong> Defines what should be returned when a method is called on a mock object.</li>
+          <li><strong>verify(...):</strong> Verifies that a specific method was called on a mock object.</li>
+          <li><strong>any(...):</strong> A Mockito matcher to match any parameter of a specific type.</li>
+        </ul>
+      </section>
+
+      <!-- Section: Mocking Exceptions in Methods -->
+      <section>
+        <h3>4. Mocking Exceptions in Methods</h3>
+        <p>Sometimes you need to simulate an exception being thrown by a mocked method. Mockito makes this easy with the <code>thenThrow()</code> method.</p>
+
+        <h4>4.1. Example: Mocking Exceptions</h4>
+        <p>In this example, we will simulate an exception when attempting to find a product by ID.</p>
+
+        <pre><code>
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+@Test
+void testFindProductByIdThrowsException() {
+    // Arrange: Mock method to throw exception
+    when(productRepository.findById(1L)).thenThrow(new ProductNotFoundException("Product not found"));
+
+    // Act and Assert: Test that exception is thrown
+    Exception exception = assertThrows(ProductNotFoundException.class, () -> {
+        productService.findProductById(1L);
+    });
+
+    assertEquals("Product not found", exception.getMessage());
+}
+        </code></pre>
+
+        <p>In this case, when <code>findById(1L)</code> is called, we simulate an exception, and the unit test checks whether the exception is properly thrown.</p>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>5. Summary</h3>
+        <p>Mockito is a powerful tool for mocking dependencies in unit tests. It allows you to:</p>
+        <ul>
+          <li><strong>Mock service methods</strong> to isolate the unit being tested.</li>
+          <li><strong>Verify method interactions</strong> to ensure the system behaves as expected.</li>
+          <li><strong>Simulate exceptions</strong> for testing error scenarios in service methods.</li>
+        </ul>
+        <p>By using Mockito, you can effectively test the behavior of Spring Boot services and ensure their correctness without involving actual databases or external systems.</p>
+      </section>
+    </section>
+  </main>
+  <div id="footer-container"></div>
+   <script src="../js/scripts.js"></script>
+</body>
+</html>

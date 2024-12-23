@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@ControllerAdvice and @ExceptionHandler in Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Global exception handling with @ControllerAdvice and @ExceptionHandler in Spring Boot</h2>
+      <p>In Spring Boot, <code>@ControllerAdvice</code> and <code>@ExceptionHandler</code> are powerful tools for handling exceptions globally or locally in your application. They allow you to manage exceptions and return meaningful responses to the client.</p>
+
+      <!-- Section: @ControllerAdvice -->
+      <section>
+        <h3>1. What is <code>@ControllerAdvice</code>?</h3>
+        <p><code>@ControllerAdvice</code> is a Spring annotation used to define global exception handlers for your application. It acts as a centralized error-handling mechanism that applies to all controllers, reducing redundancy and improving maintainability.</p>
+
+        <h4>1.1 Features of <code>@ControllerAdvice</code></h4>
+        <ul>
+          <li>Centralized exception handling across multiple controllers.</li>
+          <li>Improves code maintainability by consolidating error-handling logic.</li>
+          <li>Works seamlessly with <code>@ExceptionHandler</code> to handle specific exceptions.</li>
+        </ul>
+
+        <h4>1.2 Example of <code>@ControllerAdvice</code></h4>
+        <pre><code>
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
+        return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+        </code></pre>
+        <p>In this example, <code>@ControllerAdvice</code> provides a global exception-handling mechanism for <code>ResourceNotFoundException</code> and generic exceptions.</p>
+      </section>
+
+      <!-- Section: @ExceptionHandler -->
+      <section>
+        <h3>2. What is <code>@ExceptionHandler</code>?</h3>
+        <p><code>@ExceptionHandler</code> is an annotation used within a controller or a <code>@ControllerAdvice</code> class to handle specific exceptions.</p>
+
+        <h4>2.1 Features of <code>@ExceptionHandler</code></h4>
+        <ul>
+          <li>Handles specific exceptions thrown during request processing.</li>
+          <li>Can be defined in individual controllers or within a <code>@ControllerAdvice</code> class for global handling.</li>
+          <li>Customizes the response for specific exceptions.</li>
+        </ul>
+
+        <h4>2.2 Example of <code>@ExceptionHandler</code> in a Controller</h4>
+        <pre><code>
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException ex) {
+        return new ResponseEntity<>("User not found: " + ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
+        return new ResponseEntity<>("An error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+        </code></pre>
+        <p>Here, the <code>@ExceptionHandler</code> is used within the <code>UserController</code> to manage exceptions locally for that specific controller.</p>
+      </section>
+
+      <!-- Section: Differences -->
+      <section>
+        <h3>3. Differences Between <code>@ControllerAdvice</code> and <code>@ExceptionHandler</code></h3>
+        <table border="1" cellpadding="10">
+          <thead>
+            <tr>
+              <th>Aspect</th>
+              <th>@ControllerAdvice</th>
+              <th>@ExceptionHandler</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Scope</td>
+              <td>Global: Applies to all controllers in the application.</td>
+              <td>Local: Applies only to the specific controller where it is defined.</td>
+            </tr>
+            <tr>
+              <td>Use Case</td>
+              <td>Centralized handling of exceptions for multiple controllers.</td>
+              <td>Controller-specific handling of exceptions.</td>
+            </tr>
+            <tr>
+              <td>Reusability</td>
+              <td>Reusable for all controllers.</td>
+              <td>Not reusable beyond the specific controller.</td>
+            </tr>
+            <tr>
+              <td>Implementation</td>
+              <td>Defined in a class annotated with <code>@ControllerAdvice</code>.</td>
+              <td>Defined as a method inside a controller or <code>@ControllerAdvice</code> class.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>4. Summary</h3>
+        <p>Both <code>@ControllerAdvice</code> and <code>@ExceptionHandler</code> are essential for managing exceptions in Spring Boot:</p>
+        <ul>
+          <li>Use <code>@ControllerAdvice</code> for global exception handling across all controllers.</li>
+          <li>Use <code>@ExceptionHandler</code> for localized exception handling within a specific controller.</li>
+          <li>Combine them to create a robust and consistent error-handling strategy in your application.</li>
+        </ul>
+      </section>
+    </section>
+
+    <section>
+        <h2>Validation and Custom Exception Handling in Spring Boot</h2>
+        <p>In Spring Boot, validation and exception handling can be implemented effectively using annotations like <code>@Valid</code>, <code>@ControllerAdvice</code>, and <code>@ExceptionHandler</code>. This guide demonstrates how to handle validations and exceptions globally.</p>
+  
+        <!-- Section: Validation with @Valid -->
+        <section>
+          <h3>1. Validation with <code>@Valid</code></h3>
+          <p>The <code>@Valid</code> annotation triggers validation on the input data based on constraints defined in the model.</p>
+  
+          <h4>1.1. Example of a User Model with Validation Annotations</h4>
+          <pre><code>
+  import javax.validation.constraints.Email;
+  import javax.validation.constraints.NotNull;
+  import javax.validation.constraints.Size;
+  
+  public class User {
+      @NotNull(message = "Name cannot be null")
+      @Size(min = 3, message = "Name must be at least 3 characters long")
+      private String name;
+  
+      @NotNull(message = "Email cannot be null")
+      @Email(message = "Email must be valid")
+      private String email;
+  
+      @NotNull(message = "Age cannot be null")
+      private Integer age;
+  
+      // Getters and setters
+  }
+          </code></pre>
+  
+          <h4>1.2. Example Controller with Validation</h4>
+          <pre><code>
+  import org.springframework.validation.BindingResult;
+  import org.springframework.web.bind.annotation.*;
+  
+  import javax.validation.Valid;
+  
+  @RestController
+  @RequestMapping("/users")
+  public class UserController {
+  
+      @PostMapping
+      public String createUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+          if (bindingResult.hasErrors()) {
+              return "Validation Errors: " + bindingResult.getAllErrors();
+          }
+          return "User created successfully: " + user.getName();
+      }
+  }
+          </code></pre>
+  
+          <p>In this example, the <code>@Valid</code> annotation triggers validation of the <code>User</code> object, and the <code>BindingResult</code> captures validation errors.</p>
+        </section>
+  
+        <!-- Section: Custom Exception Handling with ControllerAdvice -->
+        <section>
+          <h3>2. Custom Exception Handling with <code>@ControllerAdvice</code></h3>
+          <p><code>@ControllerAdvice</code> allows you to handle exceptions globally across your application. Combined with <code>@ExceptionHandler</code>, it provides a structured way to manage errors.</p>
+  
+          <h4>2.1. Creating a Custom Exception</h4>
+          <pre><code>
+  public class UserNotFoundException extends RuntimeException {
+      public UserNotFoundException(String message) {
+          super(message);
+      }
+  }
+          </code></pre>
+  
+          <h4>2.2. Global Exception Handler</h4>
+          <pre><code>
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+            
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+  import java.util.Set;
+  import java.util.stream.Collectors;
+  
+  @ControllerAdvice
+  public class GlobalExceptionHandler {
+  
+      @ExceptionHandler(UserNotFoundException.class)
+      public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
+          return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+      }
+  
+      @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<String> handleValidationExceptions(ConstraintViolationException ex) {
+        Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+
+        // Build the error message
+        String errorMessage = "Validation failed for fields: " +
+                violations.stream()
+                        .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
+                        .collect(Collectors.joining("; "));
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+  }
+          </code></pre>
+  
+          <p>The above class handles custom exceptions and validation errors globally, providing uniform error responses to clients.</p>
+        </section>
+  
+        <!-- Section: CRUD Example with Custom Exception -->
+        <section>
+          <h3>3. CRUD Example with Custom Exception Handling</h3>
+          <h4>3.1. User Service</h4>
+          <pre><code>
+  import org.springframework.stereotype.Service;
+  
+  import java.util.HashMap;
+  import java.util.Map;
+  
+  @Service
+  public class UserService {
+      private Map<Integer, User> userDatabase = new HashMap<>();
+  
+      public User getUserById(Integer id) {
+          if (!userDatabase.containsKey(id)) {
+              throw new UserNotFoundException("User with ID " + id + " not found");
+          }
+          return userDatabase.get(id);
+      }
+  
+      public User createUser(User user) {
+          userDatabase.put(userDatabase.size() + 1, user);
+          return user;
+      }
+  }
+          </code></pre>
+  
+          <h4>3.2. User Controller with Exception Handling</h4>
+          <pre><code>
+  import org.springframework.beans.factory.annotation.Autowired;
+  import org.springframework.web.bind.annotation.*;
+  
+  @RestController
+  @RequestMapping("/users")
+  public class UserController {
+  
+      @Autowired
+      private UserService userService;
+  
+      @GetMapping("/{id}")
+      public User getUser(@PathVariable Integer id) {
+          return userService.getUserById(id);
+      }
+  
+      @PostMapping
+      public User createUser(@Valid @RequestBody User user) {
+          return userService.createUser(user);
+      }
+  }
+          </code></pre>
+        </section>
+  
+        <!-- Section: Summary -->
+        <section>
+          <h3>4. Summary</h3>
+          <p>In this guide, we covered:</p>
+          <ul>
+            <li>Using <code>@Valid</code> to validate request data in Spring Boot.</li>
+            <li>Handling validation errors globally with <code>@ControllerAdvice</code> and <code>@ExceptionHandler</code>.</li>
+            <li>Creating and handling custom exceptions for better error management.</li>
+            <li>Implementing a simple CRUD example with validation and exception handling.</li>
+          </ul>
+          <p>These techniques ensure robust validation and consistent error responses, improving the overall quality of your Spring Boot application.</p>
+        </section>
+      </section>
+  </main>
+
+  <script src="../js/scripts.js"></script>
+  <div id="footer-container"></div>
+</body>
+</html>

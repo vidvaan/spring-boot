@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT CRUD Application with Spring Boot</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div id="header-container"></div>
+    
+    <main>
+        <section>
+            <h2>JWT-Based CRUD Application in Spring Boot</h2>
+            <h2>Overview</h2>
+            <p>This application implements user registration, login, JWT-based authentication, and basic CRUD operations for a sample resource.</p>
+        </section>
+
+        <section>
+            <h2>Dependencies</h2>
+            <p>Add the following dependencies to your <code>pom.xml</code>:</p>
+            <pre><code>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+    &lt;artifactId&gt;jjwt-api&lt;/artifactId&gt;
+    &lt;version&gt;0.11.5&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+    &lt;artifactId&gt;jjwt-impl&lt;/artifactId&gt;
+    &lt;version&gt;0.11.5&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+    &lt;artifactId&gt;jjwt-jackson&lt;/artifactId&gt;
+    &lt;version&gt;0.11.5&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+&lt;/dependency&gt;
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>User Entity</h2>
+            <p>Define a <code>User</code> entity for registration and authentication:</p>
+            <pre><code>
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotNull
+    @Size(min = 3, max = 50)
+    private String username;
+
+    @NotNull
+    @Size(min = 8)
+    private String password;
+
+    private String role;
+
+    // Getters and Setters
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Repository</h2>
+            <p>Create a <code>UserRepository</code> for database operations:</p>
+            <pre><code>
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>JWT Utility</h2>
+            <p>Implement the <code>JwtUtil</code> class for generating and validating tokens:</p>
+            <pre><code>
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
+
+@Component
+public class JwtUtil {
+
+    // The key must be at least 256 bits (32 bytes) long for HS256
+    private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("mySecretKey112128828mykeymySecretKey112128828mykey".getBytes()); // 256-bit key
+    private final int TOKEN_VALIDITY = 3600 * 1000; // 1 hour
+
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY))
+                .signWith(SECRET_KEY) // No need to specify algorithm here if it's already defined in the key
+                .compact();
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token); // Validates token signature and expiration
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Service Layer</h2>
+            <p>Create a <code>UserService</code> for business logic:</p>
+            <pre><code>
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public User registerUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("USER");
+        return userRepository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Authentication Controller</h2>
+            <p>Implement endpoints for registration and login:</p>
+            <pre><code>
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class AuthController {
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @PostMapping("/register")
+    public String registerUser(@RequestBody User user) {
+        userService.registerUser(user);
+        return "User registered successfully!";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password));
+            return jwtUtil.generateToken(username);
+        } catch (AuthenticationException e) {
+            return "Invalid credentials!";
+        }
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>CRUD Controller</h2>
+            <p>Implement CRUD operations on a sample resource:</p>
+            <pre><code>
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+
+    @GetMapping
+    public List<String> getAllProducts() {
+        return List.of("Product1", "Product2", "Product3");
+    }
+
+    @PostMapping
+    public String addProduct(@RequestBody String product) {
+        return "Product added: " + product;
+    }
+
+    @PutMapping("/{id}")
+    public String updateProduct(@PathVariable Long id, @RequestBody String product) {
+        return "Product updated: " + product;
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteProduct(@PathVariable Long id) {
+        return "Product deleted with ID: " + id;
+    }
+}
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Security Configuration</h2>
+            <p>Configure Spring Security for JWT-based authentication:</p>
+            <pre><code>
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+@Configuration
+public class SecurityConfig {
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/register", "/login").permitAll()
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = 
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        return authenticationManagerBuilder.build();
+    }
+}
+            </code></pre>
+        </section>
+        <section>
+            <h3>UserDetailsService</h3>
+            <p>This interface is used by Spring Security to load user-specific data, such as username, password, and roles, during the authentication process.</p>
+            <pre><code>
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Find user by username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        
+        // Return UserDetails implementation
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword()) // Must be encoded
+                .roles(user.getRole()) // e.g., "USER", "ADMIN"
+                .build();
+    }
+}
+                </code></pre>
+        </section>
+        <section>
+            <h3>JWT Filter</h3>
+            <p>The JWT filter intercepts incoming requests to validate the token and authenticate the user.</p>
+            <pre><code>
+    import java.io.IOException;
+    
+    import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+    import org.springframework.security.core.context.SecurityContextHolder;
+    import org.springframework.security.core.userdetails.UserDetails;
+    import org.springframework.security.core.userdetails.UserDetailsService;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.filter.OncePerRequestFilter;
+    
+    import com.ciq.demo.util.JwtUtil;
+    
+    import jakarta.servlet.FilterChain;
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+    @Component
+    public class JwtRequestFilter extends OncePerRequestFilter {
+    
+        private final JwtUtil jwtUtil;
+        private final UserDetailsService userDetailsService;
+    
+        public JwtRequestFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+            this.jwtUtil = jwtUtil;
+            this.userDetailsService = userDetailsService;
+        }
+    
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+                throws ServletException, IOException {
+            String token = request.getHeader("Authorization");
+    
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+                if (jwtUtil.validateToken(token)) {
+                    String username = jwtUtil.extractUsername(token);
+                    // Set user details here (Authentication object)
+                    System.out.println(username);
+                    // Load user details from the in-memory UserDetailsService
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+    
+                    // Set the authentication in the context
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+    
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            }
+    
+            chain.doFilter(request, response);
+        }
+    }
+            </code></pre>
+        </section>
+
+        <section>
+            <h2>Testing</h2>
+            <ul>
+                <li>Register a user with <code>POST /register</code>.</li>
+                <li>Login to get a JWT token with <code>POST /login</code>.</li>
+                <li>Use the token in the Authorization header to access <code>/products</code> endpoints.</li>
+            </ul>
+        </section>
+    </main>
+    <div id="footer-container"></div>
+   <script src="../js/scripts.js"></script>
+</body>
+</html>

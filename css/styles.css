@@ -1,0 +1,316 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    background-color: #f7f9fc;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* Header Styles */
+  header {
+    background: linear-gradient(90deg, #4caf50, #81c784);
+    color: white;
+    padding: 15px 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  header nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  header nav ul li {
+    display: inline;
+  }
+  
+  header nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+  }
+  
+  header nav ul li a:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Main Section */
+  main {
+    padding: 20px 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1;
+  }
+  
+  main h2 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+  
+  main p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+  
+  main .button {
+    display: inline-block;
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  main .button:hover {
+    background-color: #388e3c;
+    transform: translateY(-2px);
+  }
+  
+  /* Footer Styles */
+  footer {
+    background-color: #4caf50;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: auto;
+  }
+  
+  footer a {
+    color: #ffeb3b;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  footer a:hover {
+    color: #ffc107;
+  }
+  
+  /* Lists */
+  ul:not(nav ul)  {
+    margin-left: 25px;
+  }
+
+  
+  
+  figure {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  figcaption {
+    font-style: italic;
+    margin-top: 5px;
+  }
+  
+  /* Styling for the code block */
+  pre {
+    background-color: #2e2e2e;
+    color: #f8f8f2;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    overflow-x: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
+  }
+  
+  pre code {
+    display: block;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  /* Optional: Styling for Copy to Clipboard Button */
+  .copy-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+  }
+  
+  .copy-btn:hover {
+    background-color: #388e3c;
+  }
+  
+  .tooltip {
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 30px;
+    right: 10px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .copy-btn:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+/* Table headers */
+th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+/* Table data cells */
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* Table row hover effect */
+tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Add a border around the whole table */
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+/* Optional: style for code blocks inside the table */
+table code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.1em;
+    background-color: #f4f4f4;
+    padding: 3px 6px;
+}
+
+  
+  /* Responsive Design */
+  
+  /* Mobile Devices (max-width: 600px) */
+  @media (max-width: 600px) {
+    body {
+      padding: 8px;
+    }
+  
+    header h1 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+  
+    header nav ul {
+      flex-direction: column;
+      padding: 0;
+    }
+  
+    header nav ul li {
+      margin-bottom: 10px;
+    }
+  
+    main h2 {
+      font-size: 1.6rem;
+    }
+  
+    main p {
+      font-size: 1rem;
+    }
+  
+    .button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+    }
+  
+    pre {
+      font-size: 0.8rem;
+      padding: 8px;
+    }
+  
+    footer {
+      padding: 10px 0;
+    }
+  
+    .copy-btn {
+      font-size: 1rem;
+      padding: 8px 12px;
+    }
+  }
+  
+  /* Tablets (max-width: 900px) */
+  @media (max-width: 900px) {
+    body {
+      padding: 15px;
+    }
+  
+    main h2 {
+      font-size: 2rem;
+    }
+  
+    main p {
+      font-size: 1.1rem;
+    }
+  
+    .button {
+      width: 100%;
+      padding: 12px;
+    }
+  
+    pre {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Desktop Devices (min-width: 901px) */
+  @media (min-width: 901px) {
+    main {
+      padding: 30px 20px;
+    }
+  
+    header h1 {
+      font-size: 2rem;
+    }
+  
+    .button {
+      padding: 12px 20px;
+    }
+  }
+  

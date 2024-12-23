@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Java Script Objects</h1>
+    <script>
+
+            let student = {};
+
+            student.sid = 1001;
+            student.sname = 'Balaji';
+            student.sfee = 30000.00;
+
+            student.work = function(){
+                console.log("Student can work ");
+            }
+            
+            console.log("Student : ",student);
+            student.work();
+
+            let employee = {
+                eid : 1001,
+                ename : "Balaji",
+                esal : 40000.00
+            };
+
+            employee.address = "Sklm";
+
+            console.log("Employee : ",employee);
+
+
+
+            let car = new Object();
+            car.name = "Fiat";
+            car.model = "500";
+            car.weight = "850kg";
+            car.color = "white";
+
+            car.display = () => {
+               console.log("Name : ",car.name);
+               console.log("Model : ",car.model);
+               console.log("Weight : ",car.weight);
+               console.log("Color : ",car.color);
+            };
+
+
+            car.display();
+
+
+
+            let person = {
+                firstName:"John", 
+                lastName:"Doe", 
+                age:50, 
+                eyeColor:"blue",
+                address : {
+                    city : "sklm",
+                    state : "AP",
+                    pincode : "532408"
+                }
+            };
+
+            console.log(person.address.city);
+    </script>
+</body>
+</html>

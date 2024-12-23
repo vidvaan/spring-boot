@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot Configuration</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <!-- Section: Spring Boot Configuration -->
+    <section>
+      <h2>Spring Boot Configuration</h2>
+      <p>Spring Boot provides powerful features for configuration, allowing developers to easily externalize settings, manage environment-specific properties, and customize application behavior.</p>
+
+      <h3>1. Configuration Files</h3>
+      <p>Spring Boot supports two main types of configuration files:</p>
+      <ul>
+        <li><strong><code>application.properties</code>:</strong> A key-value pair configuration file.</li>
+        <li><strong><code>application.yml</code>:</strong> A YAML-based hierarchical configuration file.</li>
+      </ul>
+      <p>These files are typically placed in the <code>src/main/resources</code> directory and allow you to define properties for your application.</p>
+
+      <h4>Example: application.properties</h4>
+      <pre><code>
+# Server configuration
+server.port=8081
+spring.application.name=DemoApplication
+
+# Database configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/demo
+spring.datasource.username=root
+spring.datasource.password=root
+      </code></pre>
+
+      <h4>Example: application.yml</h4>
+      <pre><code>
+server:
+  port: 8081
+spring:
+  application:
+    name: DemoApplication
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo
+    username: root
+    password: root
+      </code></pre>
+
+      <h3>2. Externalizing Configuration</h3>
+      <p>Spring Boot allows configuration to be externalized so that the same application can work in different environments without code changes. Configuration can be loaded from:</p>
+      <ul>
+        <li><strong>Environment Variables</strong>: Use environment variables to override default values.</li>
+        <li><strong>Command-Line Arguments</strong>: Pass properties as arguments (e.g., <code>--server.port=9090</code>).</li>
+        <li><strong>External Files</strong>: Use an external <code>.properties</code> or <code>.yml</code> file.</li>
+      </ul>
+
+      <h3>3. Profile-Specific Properties</h3>
+      <p>Spring Boot supports profiles to manage environment-specific configurations (e.g., dev, test, prod). Profile-specific files are named <code>application-{profile}.properties</code> or <code>application-{profile}.yml</code>.</p>
+
+      <h4>Example: application-dev.properties</h4>
+      <pre><code>
+server.port=8080
+spring.datasource.url=jdbc:mysql://localhost:3306/dev_db
+      </code></pre>
+
+      <h4>Example: application-prod.properties</h4>
+      <pre><code>
+server.port=9090
+spring.datasource.url=jdbc:mysql://localhost:3306/prod_db
+      </code></pre>
+
+      <h4>Activating a Profile</h4>
+      <p>To activate a specific profile, you can use:</p>
+      <ul>
+        <li><strong>Command-Line:</strong> <code>--spring.profiles.active=prod</code></li>
+        <li><strong>Environment Variable:</strong> <code>SPRING_PROFILES_ACTIVE=prod</code></li>
+      </ul>
+
+      <h3>4. Customizing Spring Boot Properties</h3>
+      <p>Spring Boot allows you to customize application properties using either <code>@Value</code> or <code>@ConfigurationProperties</code>.</p>
+
+      <h4>Using <code>@Value</code> Annotation</h4>
+      <pre><code>
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyComponent {
+
+    @Value("${spring.application.name}")
+    private String appName;
+
+    public void printAppName() {
+        System.out.println("Application Name: " + appName);
+    }
+}
+      </code></pre>
+
+      <h4>Using <code>@ConfigurationProperties</code></h4>
+      <pre><code>
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConfigurationProperties(prefix = "spring.datasource")
+public class DataSourceConfig {
+
+    private String url;
+    private String username;
+    private String password;
+
+    // Getters and Setters
+}
+      </code></pre>
+
+      <p>To enable <code>@ConfigurationProperties</code>, add <code>@EnableConfigurationProperties</code> to a configuration class or your main application class.</p>
+
+      <h3>5. Difference Between application.properties and application.yml</h3>
+      <table border="1" cellpadding="10">
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>application.properties</th>
+            <th>application.yml</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Format</td>
+            <td>Key-value pairs</td>
+            <td>YAML (Hierarchical format)</td>
+          </tr>
+          <tr>
+            <td>Readability</td>
+            <td>Simple for flat configurations</td>
+            <td>Better for hierarchical configurations</td>
+          </tr>
+          <tr>
+            <td>Multiline Values</td>
+            <td>Requires escaping</td>
+            <td>Easy with indentation</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6. Handling Different Environments with Profiles</h3>
+      <p>Profiles allow you to define different configurations for different environments (e.g., development, testing, production). This helps you manage environment-specific settings without modifying the code.</p>
+
+      <h4>Steps to Configure Profiles</h4>
+      <ol>
+        <li>Create profile-specific property files (e.g., <code>application-dev.properties</code>, <code>application-prod.properties</code>).</li>
+        <li>Set the active profile using <code>spring.profiles.active</code>.</li>
+        <li>Use these profiles to define environment-specific configurations.</li>
+      </ol>
+
+      <h4>Example: Using Profiles</h4>
+      <pre><code>
+# application.properties
+spring.profiles.active=dev
+
+# application-dev.properties
+server.port=8080
+
+# application-prod.properties
+server.port=9090
+      </code></pre>
+
+      <h3>7. Summary of Spring Boot Configuration</h3>
+      <table border="1" cellpadding="10">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Configuration Files</td>
+            <td>Stores application properties</td>
+            <td><code>application.properties</code>, <code>application.yml</code></td>
+          </tr>
+          <tr>
+            <td>Profiles</td>
+            <td>Manages environment-specific settings</td>
+            <td><code>application-dev.properties</code></td>
+          </tr>
+          <tr>
+            <td>@Value</td>
+            <td>Binds a single property</td>
+            <td><code>@Value("${spring.application.name}")</code></td>
+          </tr>
+          <tr>
+            <td>@ConfigurationProperties</td>
+            <td>Binds a group of properties</td>
+            <td><code>@ConfigurationProperties(prefix = "spring.datasource")</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

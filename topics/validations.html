@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Binding and Validation in Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+      <h2>Data Binding and Validation in Spring Boot</h2>
+      <p>Spring Boot provides built-in support for data binding and validation. This guide explains how to handle form data and JSON inputs, and how to use data validation annotations like <code>@Valid</code>, <code>@NotNull</code>, <code>@Email</code>, <code>@Size</code>, and custom validators in your Spring Boot application.</p>
+      <section>
+        <h3>1. Required Dependencies</h3>
+        <p>Add the following dependencies in your <code>pom.xml</code> to enable Spring Boot validation support:</p>
+
+        <pre><code>
+&lt;dependencies&gt;
+    &lt;!-- Spring Boot Starter Web for REST APIs and Controllers --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- Spring Boot Starter Validation for @Valid and Bean Validation --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- Spring Boot Starter Thymeleaf for rendering forms (optional) --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-thymeleaf&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;!-- Spring Boot Starter Test for testing your application (optional) --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+        </code></pre>
+      </section>
+
+      <!-- Section: Main Class -->
+      <section>
+        <h3>2. Main Application Class</h3>
+        <p>Your main application class should be annotated with <code>@SpringBootApplication</code> and <code>@Validated</code> to enable validation support.</p>
+
+        <pre><code>
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.validation.annotation.Validated;
+
+@SpringBootApplication
+@Validated // Enables validation support
+public class DataValidationApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DataValidationApplication.class, args);
+    }
+}
+        </code></pre>
+        <p>The <code>@Validated</code> annotation ensures that validation constraints are respected globally in the application.</p>
+      </section>
+      <!-- Section: Data Binding -->
+      <section>
+        <h3>1. Data Binding</h3>
+        <p>Data binding is the process of connecting data from the client (form data or JSON) to Java objects. In Spring Boot, we use <code>@RequestBody</code> for binding JSON data and <code>@ModelAttribute</code> for binding form data.</p>
+
+        <h4>1.1. Handling Form Data</h4>
+        <p>For handling form data, you can use the <code>@ModelAttribute</code> annotation to bind form data to a Java object. Here's how it works:</p>
+
+        <pre><code>
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+
+@Controller
+public class UserController {
+
+    @GetMapping("/form")
+    public String showForm(User user) {
+        return "userForm";
+    }
+
+    @PostMapping("/submitForm")
+    public String submitForm(@ModelAttribute User user) {
+        // Process the form data
+        return "userDetails";
+    }
+}
+        </code></pre>
+
+        <p>In the example above, when the form is submitted, the data is bound to the <code>User</code> object using <code>@ModelAttribute</code>.</p>
+
+        <h4>1.2. Handling JSON Data</h4>
+        <p>For handling JSON data in Spring Boot, you can use the <code>@RequestBody</code> annotation to bind JSON data to a Java object. Here's an example:</p>
+
+        <pre><code>
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+
+    @PostMapping("/submitUser")
+    public String submitUser(@RequestBody User user) {
+        // Process the JSON data
+        return "User received: " + user.getName();
+    }
+}
+        </code></pre>
+
+        <p>In this case, Spring automatically converts the incoming JSON into a <code>User</code> object using the Jackson library.</p>
+      </section>
+
+      <!-- Section: Data Validation -->
+      <section>
+        <h3>2. Data Validation</h3>
+        <p>Spring Boot provides annotations for data validation, such as <code>@NotNull</code>, <code>@Size</code>, <code>@Email</code>, <code>@Min</code>, <code>@Max</code>, <code>@Pattern</code>, and more. You can use these annotations to validate the data coming from a user input or JSON request.</p>
+
+        <h4>2.1. Using @Valid and @NotNull</h4>
+        <p>To validate an object in a Spring controller method, use the <code>@Valid</code> annotation. You can also use specific validation annotations like <code>@NotNull</code> to validate fields inside the object.</p>
+
+        <pre><code>
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.validation.constraints.Email;
+
+public class User {
+
+    @NotNull(message = "Name cannot be null")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
+    private String name;
+
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Email should be valid")
+    private String email;
+
+    @NotNull(message = "Age cannot be null")
+    @Min(value = 18, message = "Age must be at least 18")
+    private Integer age;
+
+    // Getters and setters
+}
+        </code></pre>
+
+        <p>In the example above:</p>
+        <ul>
+          <li><code>@NotNull</code> ensures that the field is not null.</li>
+          <li><code>@Size</code> checks that the string has a minimum length of 3 characters.</li>
+          <li><code>@Email</code> ensures the email format is valid.</li>
+          <li><code>@Min</code> ensures that the age is at least 18.</li>
+        </ul>
+
+        <h4>2.2. Validating in Controller</h4>
+        <p>In the controller method, use <code>@Valid</code> to trigger validation for the incoming object, and use <code>BindingResult</code> to capture any validation errors.</p>
+
+        <pre><code>
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+
+    @PostMapping("/submitUser")
+    public String submitUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "Validation failed: " + bindingResult.getAllErrors();
+        }
+        return "User received: " + user.getName();
+    }
+}
+        </code></pre>
+
+        <p>If the data is invalid, <code>BindingResult</code> will capture the errors, and the response will show the validation error messages.</p>
+
+        <h4>2.3. Common Validator Annotations</h4>
+        <p>Here is a list of some of the most commonly used validation annotations:</p>
+        <table border="1">
+          <thead>
+            <tr>
+              <th>Annotation</th>
+              <th>Description</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>@NotNull</code></td>
+              <td>Ensures the field is not null.</td>
+              <td><code>@NotNull(message = "Name cannot be null")</code></td>
+            </tr>
+            <tr>
+              <td><code>@Size</code></td>
+              <td>Ensures the string length is within the specified range.</td>
+              <td><code>@Size(min = 3, max = 20, message = "Name must be between 3 and 20 characters")</code></td>
+            </tr>
+            <tr>
+              <td><code>@Email</code></td>
+              <td>Ensures the field contains a valid email address.</td>
+              <td><code>@Email(message = "Email should be valid")</code></td>
+            </tr>
+            <tr>
+              <td><code>@Min</code></td>
+              <td>Ensures the field's value is greater than or equal to a minimum value.</td>
+              <td><code>@Min(value = 18, message = "Age must be at least 18")</code></td>
+            </tr>
+            <tr>
+              <td><code>@Max</code></td>
+              <td>Ensures the field's value is less than or equal to a maximum value.</td>
+              <td><code>@Max(value = 100, message = "Age must be less than or equal to 100")</code></td>
+            </tr>
+            <tr>
+              <td><code>@Pattern</code></td>
+              <td>Ensures the field's value matches a regular expression pattern.</td>
+              <td><code>@Pattern(regexp = "\\d{10}", message = "Phone number must be 10 digits")</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>2.4. Custom Validators</h4>
+        <p>You can create custom validators to validate more complex or business-specific rules. Here is how you can define and use a custom validator:</p>
+
+        <pre><code>
+// Custom annotation
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.*;
+
+@Constraint(validatedBy = NameValidator.class)
+@Target({ ElementType.METHOD, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ValidName {
+    String message() default "Invalid name";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+
+// Custom validator
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+public class NameValidator implements ConstraintValidator<ValidName, String> {
+
+    @Override
+    public void initialize(ValidName constraintAnnotation) {
+    }
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        // Custom validation logic
+        return value != null && value.length() > 2;
+    }
+}
+        </code></pre>
+
+        <p>In the example above, we create a custom annotation <code>@ValidName</code> and a corresponding validator class. You can then use this custom validator in your model class:</p>
+
+        <pre><code>
+public class User {
+    @ValidName
+    private String name;
+
+    // Other fields and methods
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>3. Summary</h3>
+        <p>In this guide, we explored how to handle form data and JSON in Spring Boot and how to validate that data using built-in annotations like <code>@Valid</code>, <code>@NotNull</code>, <code>@Size</code>, <code>@Email</code>, and custom validators. By using data binding and validation, we ensure that only valid data is accepted and processed by our application.</p>
+        <ul>
+          <li><code>@Valid</code> triggers validation for an object in a controller method.</li>
+          <li><code>@NotNull</code>, <code>@Size</code>, <code>@Email</code>, and other annotations help validate individual fields in an object.</li>
+          <li>Custom validators allow you to define complex validation logic for your data.</li>
+        </ul>
+      </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

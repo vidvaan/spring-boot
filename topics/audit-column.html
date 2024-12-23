@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Implementing Audit Columns in Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Implementing Audit Columns in Spring Boot</h2>
+      <p>Audit columns, such as <code>createdBy</code>, <code>createdDate</code>, <code>updatedBy</code>, and <code>updatedDate</code>, are used to track the creation and modification of records. This is commonly done using JPA Auditing in Spring Boot.</p>
+
+      <h3>1. Enabling JPA Auditing</h3>
+      <p>To use JPA Auditing, you need to enable auditing in your Spring Boot application by adding the <code>@EnableJpaAuditing</code> annotation in your configuration class.</p>
+      <pre><code>
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+@Configuration
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
+public class JpaConfig {
+    // Enable JPA Auditing
+}
+      </code></pre>
+
+      <h3>2. Creating the Audit Entity</h3>
+      <p>Create a base entity class that will contain the audit columns. Use <code>@CreatedBy</code>, <code>@CreatedDate</code>, <code>@LastModifiedBy</code>, and <code>@LastModifiedDate</code> annotations to dynamically manage audit data.</p>
+
+      <pre><code>
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import jakarta.persistence.MappedSuperclass;
+
+import java.time.LocalDateTime;
+
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
+public class Auditable {
+    
+    @CreatedBy
+    private String createdBy;
+    
+    @CreatedDate
+    private LocalDateTime createdDate;
+    
+    @LastModifiedBy
+    private String lastModifiedBy;
+    
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <p>The <code>@MappedSuperclass</code> annotation makes this class a base class that other entity classes can extend. This allows the audit columns to be inherited by any entity that extends this class.</p>
+
+      <h3>3. Extending the Auditable Entity</h3>
+      <p>Now, you can extend the <code>Auditable</code> class in your entity classes to add audit columns automatically when saving or updating data.</p>
+
+      <pre><code>
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+public class Employee extends Auditable {
+    
+    @Id
+    private Long id;
+    private String name;
+    private String department;
+    private double salary;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <p>In this example, the <code>Employee</code> class extends <code>Auditable</code>, and the audit columns will be automatically populated during the entity’s lifecycle.</p>
+
+      <h3>4. Configuring the Auditor Provider</h3>
+      <p>The <code>@CreatedBy</code> and <code>@LastModifiedBy</code> annotations require an <code>AuditorAware</code> bean to populate the user information. You need to implement the <code>AuditorAware</code> interface to retrieve the current user who created or modified the entity.</p>
+
+      <pre><code>
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component("auditorAware")
+public class AuditorAwareImpl implements AuditorAware<String> {
+
+    @Override
+    public Optional<String> getCurrentAuditor() {
+        // In a real application, fetch the current user from SecurityContext or session
+        return Optional.of("admin"); // Example: Use "admin" as the current user
+    }
+}
+      </code></pre>
+
+      <h3>5. Example: Saving and Updating Data</h3>
+      <p>When you save or update an entity, the audit columns will be automatically populated. The <code>createdBy</code>, <code>createdDate</code>, <code>lastModifiedBy</code>, and <code>lastModifiedDate</code> will be handled by Spring Data JPA.</p>
+
+      <pre><code>
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CommandLineAppStartupRunner implements CommandLineRunner {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Override
+    public void run(String...args) throws Exception {
+        Employee employee = new Employee();
+        employee.setName("John Doe");
+        employee.setDepartment("IT");
+        employee.setSalary(50000.0);
+
+        // Save the employee, auditing fields will be populated automatically
+        employeeRepository.save(employee);
+
+        // Update the employee, auditing fields will be updated automatically
+        employee.setSalary(55000.0);
+        employeeRepository.save(employee);
+    }
+}
+      </code></pre>
+
+      <h3>6. Summary of Key Annotations and Concepts</h3>
+      <table border="1" cellpadding="10">
+        <thead>
+          <tr>
+            <th>Annotation</th>
+            <th>Description</th>
+            <th>Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@CreatedBy</code></td>
+            <td>Marks the field that will hold the entity’s creator.</td>
+            <td>Entity field</td>
+          </tr>
+          <tr>
+            <td><code>@CreatedDate</code></td>
+            <td>Marks the field that will hold the entity’s creation timestamp.</td>
+            <td>Entity field</td>
+          </tr>
+          <tr>
+            <td><code>@LastModifiedBy</code></td>
+            <td>Marks the field that will hold the entity’s last modifier.</td>
+            <td>Entity field</td>
+          </tr>
+          <tr>
+            <td><code>@LastModifiedDate</code></td>
+            <td>Marks the field that will hold the entity’s last modification timestamp.</td>
+            <td>Entity field</td>
+          </tr>
+          <tr>
+            <td><code>@MappedSuperclass</code></td>
+            <td>Marks a superclass whose properties are inherited by entities.</td>
+            <td>Base class</td>
+          </tr>
+          <tr>
+            <td><code>@EnableJpaAuditing</code></td>
+            <td>Enables JPA Auditing functionality in your application.</td>
+            <td>Configuration class</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>7. Summary</h3>
+      <p>By using JPA Auditing, you can automatically manage audit columns like <code>createdBy</code>, <code>createdDate</code>, <code>updatedBy</code>, and <code>updatedDate</code> without manually handling these fields. This is essential for tracking the lifecycle of your entities, and with the help of Spring Data JPA, you can easily configure and use these audit features in your Spring Boot applications.</p>
+    </section>
+  </main>
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

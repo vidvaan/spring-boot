@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Migrations: Flyway and Liquibase</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Database Migrations with Flyway and Liquibase</h2>
+      <p>Database migration tools like Flyway and Liquibase help in managing and versioning your database schema changes in a consistent and repeatable manner. These tools ensure that your database structure evolves alongside your application code.</p>
+
+      <!-- Section: Introduction to Flyway -->
+      <section>
+        <h3>1. Introduction to Flyway</h3>
+        <p><strong>Flyway</strong> is a simple and powerful database migration tool for Java-based applications. It focuses on handling versioned migrations and has excellent support for SQL-based migration scripts.</p>
+
+        <h4>1.1. Flyway Setup in Spring Boot</h4>
+        <p>To integrate Flyway with your Spring Boot application, add the following dependency to your <code>pom.xml</code>:</p>
+        <pre><code>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.flywaydb&lt;/groupId&gt;
+    &lt;artifactId&gt;flyway-core&lt;/artifactId&gt;
+&lt;/dependency&gt;
+        </code></pre>
+
+        <h4>1.2. Flyway Configuration</h4>
+        <p>Flyway can be configured in the <code>application.properties</code> file:</p>
+        <pre><code>
+spring.flyway.url=jdbc:mysql://localhost:3306/mydb
+spring.flyway.user=root
+spring.flyway.password=root
+spring.flyway.locations=classpath:db/migration
+        </code></pre>
+
+        <h4>1.3. Flyway Migration Script</h4>
+        <p>Flyway uses versioned SQL scripts for migrations. The naming convention is <code>V1__initial_schema.sql</code>, <code>V2__add_new_column.sql</code>, etc.</p>
+        <p>Example of a Flyway migration script:</p>
+        <pre><code>
+-- V1__initial_schema.sql
+CREATE TABLE employee (
+    id INT PRIMARY KEY,
+    name VARCHAR(100),
+    department VARCHAR(100),
+    salary DECIMAL(10, 2)
+);
+        </code></pre>
+
+        <p>Flyway will automatically execute the scripts during application startup to keep the database schema up to date.</p>
+      </section>
+
+      <!-- Section: Introduction to Liquibase -->
+      <section>
+        <h3>2. Introduction to Liquibase</h3>
+        <p><strong>Liquibase</strong> is another popular database migration tool. It is more flexible and can work with both XML and SQL formats. It supports advanced features like changelog files, rollback functionality, and custom tags for complex migrations.</p>
+
+        <h4>2.1. Liquibase Setup in Spring Boot</h4>
+        <p>To integrate Liquibase with your Spring Boot application, add the following dependency to your <code>pom.xml</code>:</p>
+        <pre><code>
+&lt;dependency&gt;
+    &lt;groupId&gt;org.liquibase&lt;/groupId&gt;
+    &lt;artifactId&gt;liquibase-core&lt;/artifactId&gt;
+&lt;/dependency&gt;
+        </code></pre>
+
+        <h4>2.2. Liquibase Configuration</h4>
+        <p>Liquibase can also be configured in the <code>application.properties</code> file:</p>
+        <pre><code>
+spring.liquibase.url=jdbc:mysql://localhost:3306/mydb
+spring.liquibase.user=root
+spring.liquibase.password=root
+spring.liquibase.change-log=classpath:db/changelog/db.changelog-master.xml
+        </code></pre>
+
+        <h4>2.3. Liquibase Changelog File</h4>
+        <p>The changelog file is an XML file where the database changes are defined. Here's an example:</p>
+        <pre><code>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd"&gt;
+
+    &lt;changeSet id="1" author="admin"&gt;
+        &lt;createTable tableName="employee"&gt;
+            &lt;column name="id" type="int"&gt;
+                &lt;constraints primaryKey="true"/&gt;
+            &lt;/column&gt;
+            &lt;column name="name" type="varchar(100)"/&gt;
+            &lt;column name="department" type="varchar(100)"/&gt;
+            &lt;column name="salary" type="decimal(10, 2)"/&gt;
+        &lt;/createTable&gt;
+    &lt;/changeSet&gt;
+
+&lt;/databaseChangeLog&gt;
+        </code></pre>
+
+        <p>Liquibase will read this changelog file, apply the changes to the database, and track the state of the database schema.</p>
+      </section>
+
+      <!-- Section: Differences Between Flyway and Liquibase -->
+      <section>
+        <h3>3. Differences Between Flyway and Liquibase</h3>
+        <table border="1" cellpadding="10">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Flyway</th>
+              <th>Liquibase</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Migration Scripts</td>
+              <td>SQL-based scripts</td>
+              <td>XML, YAML, JSON, and SQL</td>
+            </tr>
+            <tr>
+              <td>Version Control</td>
+              <td>Uses versioned SQL scripts</td>
+              <td>Uses changelog files with changeSets</td>
+            </tr>
+            <tr>
+              <td>Rollback</td>
+              <td>No built-in rollback support</td>
+              <td>Supports rollback with <code>rollback</code> tags</td>
+            </tr>
+            <tr>
+              <td>Complex Migrations</td>
+              <td>Simple migrations</td>
+              <td>Supports more complex migrations with custom tags</td>
+            </tr>
+            <tr>
+              <td>Integration</td>
+              <td>Easily integrates with Spring Boot</td>
+              <td>Easily integrates with Spring Boot</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>4. Summary</h3>
+        <p>Both Flyway and Liquibase are excellent tools for managing database migrations. Flyway is simple, SQL-based, and great for versioning migrations, while Liquibase is more flexible, supports multiple formats, and includes advanced features like rollback.</p>
+        <p>Your choice between Flyway and Liquibase should depend on your specific requirements. If you need simple, versioned SQL migrations, Flyway is an ideal choice. For more complex database change management with rollback features, Liquibase is recommended.</p>
+      </section>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

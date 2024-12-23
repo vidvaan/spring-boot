@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction to Spring Security</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Introduction to Spring Security</h2>
+      <p>Spring Security is a powerful framework that focuses on providing authentication, authorization, and other security features for Java applications. It is a standard security module for Spring-based applications.</p>
+
+      <h3>1. Key Features of Spring Security</h3>
+      <ul>
+        <li>Comprehensive support for authentication and authorization.</li>
+        <li>Protection against common vulnerabilities such as CSRF and XSS.</li>
+        <li>Integration with various authentication providers (e.g., LDAP, OAuth).</li>
+        <li>Customizable security configurations.</li>
+      </ul>
+
+      <!-- Section: Setting Up Spring Security -->
+      <section>
+        <h3>2. Setting Up Spring Security in Spring Boot</h3>
+
+        <h4>2.1 Adding Spring Security Dependency</h4>
+        <p>Add the following dependency in your <code>pom.xml</code> file:</p>
+        <pre><code>
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        </code></pre>
+
+        <h4>2.2 Default Security Behavior</h4>
+        <p>Once you add the Spring Security dependency, Spring Boot applies a default security configuration:</p>
+        <ul>
+          <li>All endpoints are secured by default.</li>
+          <li>A default user is created with the username <code>user</code> and a randomly generated password printed in the console.</li>
+        </ul>
+
+        <h4>2.3 Customizing Security Configuration</h4>
+        <p>Create a custom security configuration by extending <code>WebSecurityConfigurerAdapter</code> or using <code>SecurityFilterChain</code> (Spring Security 5+).</p>
+        <pre><code>
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+      http
+          .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity
+          .authorizeHttpRequests(auth -> auth
+              .requestMatchers("/public/**").permitAll() // Public endpoints
+              .requestMatchers("/admin/**").hasRole("ADMIN") // Admin-only endpoints
+              .anyRequest().authenticated() // Authentication required for other endpoints
+          )
+          .httpBasic(Customizer.withDefaults()); // Enable HTTP Basic authentication
+      return http.build();
+  }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+        </code></pre>
+        <p>In this example:</p>
+        <ul>
+          <li><code>/public/**</code> is accessible to everyone.</li>
+          <li><code>/admin/**</code> requires the user to have the "ADMIN" role.</li>
+          <li>All other endpoints require authentication.</li>
+        </ul>
+      </section>
+
+      <!-- Section: Authentication in Spring Security -->
+      <section>
+        <h3>3. Authentication in Spring Security</h3>
+        <p>Authentication verifies the identity of the user trying to access the application. Spring Security supports various authentication methods, including in-memory, database, and third-party providers.</p>
+
+        <h4>3.1 In-Memory Authentication</h4>
+        <pre><code>
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+public class InMemoryAuthConfig {
+
+  @Bean
+  public InMemoryUserDetailsManager userDetailsService() {
+      // Define in-memory users with roles
+      return new InMemoryUserDetailsManager(
+          User.withUsername("admin")
+              .password(passwordEncoder().encode("admin123"))
+              .roles("ADMIN")
+              .build(),
+          User.withUsername("user")
+              .password(passwordEncoder().encode("user123"))
+              .roles("USER")
+              .build()
+      );
+  }
+  
+}
+        </code></pre>
+
+        <p>In this configuration, two users are created in memory with roles "ADMIN" and "USER".</p>
+
+      <!-- Section: Authorization in Spring Security -->
+      <section>
+        <h3>3. Authorization in Spring Security</h3>
+        <p>Authorization determines the actions a user is allowed to perform based on roles or permissions.</p>
+
+        <h4>4.1 Role-Based Authorization</h4>
+        <pre><code>
+          @Bean
+          public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+              http
+                  .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity
+                  .authorizeHttpRequests(auth -> auth
+                      .requestMatchers("/public/**").permitAll() // Public endpoints
+                      .requestMatchers("/admin/**").hasRole("ADMIN") // Admin-only endpoints
+                      .anyRequest().authenticated() // Authentication required for other endpoints
+                  )
+                  .httpBasic(Customizer.withDefaults()); // Enable HTTP Basic authentication
+              return http.build();
+          }
+        </code></pre>
+        <p>This configuration ensures that:</p>
+        <ul>
+          <li>Only users with the "ADMIN" role can access <code>/admin/**</code>.</li>
+          <li>Users with "USER" or "ADMIN" roles can access <code>/user/**</code>.</li>
+          <li><code>/public/**</code> is accessible to everyone.</li>
+        </ul>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>4. Summary</h3>
+        <p>Spring Security simplifies implementing authentication and authorization in Spring Boot applications. By leveraging <code>SecurityFilterChain</code>, <code>@EnableWebSecurity</code>, and other configurations, you can secure your application effectively.</p>
+        <ul>
+          <li>Add the Spring Security dependency to your project.</li>
+          <li>Configure authentication methods (in-memory, database, etc.).</li>
+          <li>Define role-based access control for endpoints.</li>
+          <li>Customize security settings as per your application’s needs.</li>
+        </ul>
+      </section>
+    </section>
+    <h2>Database Authentication in Spring Security</h2>
+      <p>Spring Security allows for easy integration with database-backed user authentication. In this guide, we'll replace the in-memory authentication with database authentication using <code>JdbcUserDetailsManager</code>.</p>
+
+      <!-- Section: Updated Security Configuration -->
+      <section>
+        <h3>1. Updated Security Configuration</h3>
+        <p>The updated <code>SecurityConfig</code> class uses <code>JdbcUserDetailsManager</code> for fetching user details and roles from the database.</p>
+
+        <pre><code>
+package com.ciq.demo;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
+
+// @Configuration
+public class SecurityConfig {
+
+    @Bean
+    public UserDetailsService userDetailsService(DataSource dataSource) {
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
+        userDetailsManager.setUsersByUsernameQuery(
+            "SELECT username, password, enabled FROM users WHERE username = ?"
+        );
+        userDetailsManager.setAuthoritiesByUsernameQuery(
+            "SELECT username, authority FROM authorities WHERE username = ?"
+        );
+        return userDetailsManager;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults());
+        return http.build();
+    }
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Required Database Schema -->
+      <section>
+        <h3>2. Required Database Schema</h3>
+        <p>Ensure your database has the following schema to support user authentication:</p>
+
+        <h4>2.1. Users Table</h4>
+        <pre><code>
+CREATE TABLE users (
+    username VARCHAR(50) NOT NULL PRIMARY KEY,
+    password VARCHAR(100) NOT NULL,
+    enabled BOOLEAN NOT NULL
+);
+        </code></pre>
+
+        <h4>2.2. Authorities Table</h4>
+        <pre><code>
+CREATE TABLE authorities (
+    username VARCHAR(50) NOT NULL,
+    authority VARCHAR(50) NOT NULL,
+    FOREIGN KEY (username) REFERENCES users(username)
+);
+        </code></pre>
+
+        <p>Insert sample data for testing:</p>
+        <pre><code>
+INSERT INTO users (username, password, enabled) VALUES 
+('admin', '$2a$10$hash_for_admin_password', true),
+('user', '$2a$10$hash_for_user_password', true);
+
+INSERT INTO authorities (username, authority) VALUES 
+('admin', 'ROLE_ADMIN'),
+('user', 'ROLE_USER');
+        </code></pre>
+      </section>
+
+      <!-- Section: DataSource Configuration -->
+      <section>
+        <h3>3. DataSource Configuration</h3>
+        <p>Configure a <code>DataSource</code> bean in your Spring Boot application. Typically, this is done in the <code>application.properties</code> file:</p>
+
+        <pre><code>
+spring.datasource.url=jdbc:mysql://localhost:3306/your_database
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+        </code></pre>
+
+        <p>Ensure the database connection details are accurate and the required dependencies for the database driver (e.g., MySQL, PostgreSQL) are included in the project.</p>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>4. Summary</h3>
+        <p>By replacing the in-memory authentication with <code>JdbcUserDetailsManager</code>, you can integrate Spring Security with a database for user authentication and role management.</p>
+        <ul>
+          <li>Configure a database schema with tables for users and roles.</li>
+          <li>Use <code>JdbcUserDetailsManager</code> to fetch user details from the database.</li>
+          <li>Configure a <code>DataSource</code> bean in <code>application.properties</code>.</li>
+          <li>Test the authentication setup with BCrypt-encoded passwords.</li>
+        </ul>
+      </section>
+
+      <h2>Database Authentication with Spring Data JPA</h2>
+      <p>In this guide, we integrate Spring Security with Spring Data JPA to authenticate users and manage roles using a database.</p>
+
+      <!-- Section: Updated Security Configuration -->
+      <section>
+        <h3>1. Security Configuration</h3>
+        <p>The <code>SecurityConfig</code> class uses a custom <code>UserDetailsService</code> implementation backed by Spring Data JPA.</p>
+
+        <pre><code>
+package com.ciq.demo;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+// @Configuration
+public class SecurityConfig {
+
+    @Bean
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return new CustomUserDetailsService(userRepository);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/public/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .httpBasic();
+        return http.build();
+    }
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: User Entity -->
+      <section>
+        <h3>2. User Entity</h3>
+        <p>Define an entity for storing user credentials and roles in the database.</p>
+
+        <pre><code>
+package com.ciq.demo;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.Set;
+
+@Entity
+public class User {
+
+    @Id
+    private String username;
+    private String password;
+    private boolean enabled;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Role> roles;
+
+    // Getters and setters
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Role Entity -->
+      <section>
+        <h3>3. Role Entity</h3>
+        <p>Define an entity to store roles associated with users.</p>
+
+        <pre><code>
+package com.ciq.demo;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+
+@Entity
+public class Role {
+
+    @Id
+    private Long id;
+    private String authority;
+
+    @ManyToOne
+    private User user;
+
+    // Getters and setters
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Repository Interfaces -->
+      <section>
+        <h3>4. Repository Interfaces</h3>
+        <p>Use Spring Data JPA repositories to fetch user data.</p>
+
+        <h4>4.1. UserRepository</h4>
+        <pre><code>
+package com.ciq.demo;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, String> {
+    User findByUsername(String username);
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Custom UserDetailsService -->
+      <section>
+        <h3>5. Custom UserDetailsService</h3>
+        <p>Implement <code>UserDetailsService</code> to load user data from the database.</p>
+
+        <pre><code>
+package com.ciq.demo;
+
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.stream.Collectors;
+
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        com.ciq.demo.User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return User.withUsername(user.getUsername())
+                .password(user.getPassword())
+                .authorities(user.getRoles().stream()
+                    .map(Role::getAuthority)
+                    .collect(Collectors.toList()).toArray(new String[0]))
+                .build();
+    }
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Database Schema -->
+      <section>
+        <h3>6. Database Schema</h3>
+        <p>Create the database tables for users and roles:</p>
+
+        <h4>6.1. User Table</h4>
+        <pre><code>
+CREATE TABLE user (
+    username VARCHAR(50) NOT NULL PRIMARY KEY,
+    password VARCHAR(100) NOT NULL,
+    enabled BOOLEAN NOT NULL
+);
+        </code></pre>
+
+        <h4>6.2. Role Table</h4>
+        <pre><code>
+CREATE TABLE role (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    authority VARCHAR(50) NOT NULL,
+    user_username VARCHAR(50) NOT NULL,
+    FOREIGN KEY (user_username) REFERENCES user(username)
+);
+        </code></pre>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>7. Summary</h3>
+        <p>By integrating Spring Security with Spring Data JPA, you can authenticate users and manage roles seamlessly:</p>
+        <ul>
+          <li>Create JPA entities for users and roles.</li>
+          <li>Define repository interfaces for data access.</li>
+          <li>Implement a custom <code>UserDetailsService</code> to load user data.</li>
+          <li>Configure Spring Security to use the custom <code>UserDetailsService</code>.</li>
+        </ul>
+      </section>
+
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

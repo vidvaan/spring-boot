@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entity Management in JPA</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Entity Management in JPA</h2>
+      <p>JPA (Java Persistence API) simplifies the management of persistent entities. This guide covers defining entities and managing relationships, such as One-to-One, One-to-Many, Many-to-One, and Many-to-Many.</p>
+
+      <h3>1. Defining JPA Entities</h3>
+      <p>Entities are lightweight, persistent domain objects. Each entity represents a table in the database.</p>
+      <pre><code>
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private String department;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <h3>2. Handling Relationships</h3>
+      <p>JPA allows defining relationships between entities using annotations like <code>@OneToOne</code>, <code>@OneToMany</code>, <code>@ManyToOne</code>, and <code>@ManyToMany</code>.</p>
+
+      <h4>2.1 One-to-One Relationship</h4>
+      <p>In a One-to-One relationship, one entity is associated with exactly one instance of another entity.</p>
+      <pre><code>
+import jakarta.persistence.*;
+
+@Entity
+public class Address {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String city;
+    private String state;
+
+    @OneToOne
+    @JoinColumn(name = "employee_id") // Foreign key in Address table
+    private Employee employee;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <h4>2.2 One-to-Many and Many-to-One Relationships</h4>
+      <p>One-to-Many relationships are common in parent-child relationships. The parent holds a collection of child entities, while each child is associated with one parent (Many-to-One).</p>
+      <pre><code>
+import jakarta.persistence.*;
+import java.util.List;
+
+@Entity
+public class Department {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    private List<Employee> employees;
+
+    // Getters and setters
+}
+
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id") // Foreign key in Employee table
+    private Department department;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <h4>2.3 Many-to-Many Relationship</h4>
+      <p>In a Many-to-Many relationship, multiple entities from both sides can be associated with each other. This typically requires a join table.</p>
+      <pre><code>
+import jakarta.persistence.*;
+import java.util.List;
+
+@Entity
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToMany
+    @JoinTable(
+        name = "student_course",
+        joinColumns = @JoinColumn(name = "student_id"),
+        inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
+    private List<Course> courses;
+
+    // Getters and setters
+}
+
+@Entity
+public class Course {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+    @ManyToMany(mappedBy = "courses")
+    private List<Student> students;
+
+    // Getters and setters
+}
+      </code></pre>
+
+      <h3>3. Summary of JPA Relationship Annotations</h3>
+      <table border="1" cellpadding="10">
+        <thead>
+          <tr>
+            <th>Annotation</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>@OneToOne</code></td>
+            <td>Defines a one-to-one relationship between two entities.</td>
+            <td><code>@OneToOne</code> with <code>@JoinColumn</code></td>
+          </tr>
+          <tr>
+            <td><code>@OneToMany</code></td>
+            <td>Defines a one-to-many relationship (parent-to-children).</td>
+            <td><code>@OneToMany(mappedBy = "parent")</code></td>
+          </tr>
+          <tr>
+            <td><code>@ManyToOne</code></td>
+            <td>Defines a many-to-one relationship (children-to-parent).</td>
+            <td><code>@ManyToOne</code> with <code>@JoinColumn</code></td>
+          </tr>
+          <tr>
+            <td><code>@ManyToMany</code></td>
+            <td>Defines a many-to-many relationship between entities.</td>
+            <td><code>@JoinTable</code> with <code>@JoinColumn</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4. Testing Relationships</h3>
+      <p>Below is an example using Spring Boot to save and fetch related entities:</p>
+      <pre><code>
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class RelationshipTestRunner implements CommandLineRunner {
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Override
+    public void run(String... args) throws Exception {
+        Department department = new Department();
+        department.setName("IT");
+
+        Employee employee = new Employee();
+        employee.setName("John Doe");
+        employee.setDepartment(department);
+
+        department.setEmployees(List.of(employee));
+
+        departmentRepository.save(department);
+
+        System.out.println("Department and Employee saved successfully!");
+    }
+}
+      </code></pre>
+    </section>
+  </main>
+
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

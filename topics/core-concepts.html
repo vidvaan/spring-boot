@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Core Concepts of Spring Boot</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+        <!-- Section: Spring Boot Hello World Example -->
+        <section>
+            <h2>Spring Boot Hello World Example with Maven</h2>
+            <p>This simple Hello World application demonstrates how to set up a Spring Boot project using Maven. We will create a basic REST API that returns a "Hello, World!" message when accessed via HTTP.</p>
+      
+            <h3>Steps to Create a Spring Boot Hello World Application with Maven</h3>
+            <ol>
+              <li>Setup Maven for your project (in the <code>pom.xml</code> file).</li>
+              <li>Create a Spring Boot application class with <code>@SpringBootApplication</code>.</li>
+              <li>Define a REST controller that handles HTTP requests.</li>
+              <li>Run the application using Maven command.</li>
+            </ol>
+      
+            <h3>1. pom.xml Configuration</h3>
+            <p>In your Maven project's <code>pom.xml</code>, you need to define the Spring Boot dependencies. Here’s the basic configuration:</p>
+      
+            <pre><code>
+      &lt;project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+          &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+      
+          &lt;groupId&gt;com.example&lt;/groupId&gt;
+          &lt;artifactId&gt;hello-world&lt;/artifactId&gt;
+          &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+          &lt;packaging&gt;jar&lt;/packaging&gt;
+      
+          &lt;dependencies&gt;
+              &lt;dependency&gt;
+                  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                  &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+              &lt;/dependency&gt;
+              &lt;dependency&gt;
+                  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                  &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+                  &lt;scope&gt;test&lt;/scope&gt;
+              &lt;/dependency&gt;
+          &lt;/dependencies&gt;
+      
+          &lt;build&gt;
+              &lt;plugins&gt;
+                  &lt;plugin&gt;
+                      &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                      &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+                  &lt;/plugin&gt;
+              &lt;/plugins&gt;
+          &lt;/build&gt;
+      &lt;/project&gt;
+            </code></pre>
+      
+            <p>The <code>spring-boot-starter-web</code> dependency includes everything needed to create a web application, while <code>spring-boot-starter-test</code> includes libraries for testing.</p>
+      
+            <h3>2. Creating the Spring Boot Application Class</h3>
+            <p>Next, create the main application class annotated with <code>@SpringBootApplication</code>, which is the entry point of the application.</p>
+            <pre><code>
+      import org.springframework.boot.SpringApplication;
+      import org.springframework.boot.autoconfigure.SpringBootApplication;
+      
+      @SpringBootApplication
+      public class HelloWorldApplication {
+      
+          public static void main(String[] args) {
+              SpringApplication.run(HelloWorldApplication.class, args);
+          }
+      }
+            </code></pre>
+      
+            <p>Here, the <code>@SpringBootApplication</code> annotation tells Spring Boot to automatically configure your application based on the dependencies and to scan for components in the same package.</p>
+      
+            <h3>3. Creating the REST Controller</h3>
+            <p>Create a controller class to handle HTTP requests. In this case, it will return a simple "Hello, World!" message:</p>
+            <pre><code>
+      import org.springframework.web.bind.annotation.GetMapping;
+      import org.springframework.web.bind.annotation.RestController;
+      
+      @RestController
+      public class HelloWorldController {
+      
+          @GetMapping("/hello")
+          public String sayHello() {
+              return "Hello, World!";
+          }
+      }
+            </code></pre>
+      
+            <p>The <code>@RestController</code> annotation defines this class as a RESTful controller, and the <code>@GetMapping("/hello")</code> annotation maps the HTTP GET request to the <code>sayHello()</code> method.</p>
+      
+            <h3>4. Running the Application</h3>
+            <p>Once the application is set up, you can run it using Maven. Open the terminal or command prompt and navigate to your project directory. Then, execute the following command:</p>
+      
+            <pre><code>
+      mvn spring-boot:run
+            </code></pre>
+      
+            <p>This command will build and start your Spring Boot application. By default, the application will run on port 8080.</p>
+      
+            <h3>5. Accessing the Application</h3>
+            <p>After running the application, you can open your web browser and go to the following URL:</p>
+            <pre><code>http://localhost:8080/hello</code></pre>
+            <p>You should see the message: <strong>"Hello, World!"</strong></p>
+      
+            <h3>Summary of Steps</h3>
+            <table border="1" cellpadding="10">
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Action</th>
+                    <th>Code/Command</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Setup <code>pom.xml</code> with Spring Boot dependencies</td>
+                    <td><code>&lt;dependency&gt;spring-boot-starter-web&lt;/dependency&gt;</code></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Create the main application class</td>
+                    <td><code>@SpringBootApplication public class HelloWorldApplication { ... }</code></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Create the controller with <code>@RestController</code></td>
+                    <td><code>@GetMapping("/hello") public String sayHello() { return "Hello, World!"; }</code></td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>Run the application</td>
+                    <td><code>mvn spring-boot:run</code></td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>Access the application in the browser</td>
+                    <td><code>http://localhost:8080/hello</code></td>
+                  </tr>
+                </tbody>
+              </table>
+      
+          </section>
+    <!-- Section: Core Concepts of Spring Boot -->
+    <section>
+      <h2>Core Concepts of Spring Boot</h2>
+      <p>Spring Boot is a framework that simplifies Java development by providing default configurations and essential tools. In this section, we'll cover key concepts of Spring Boot, such as its application structure, embedded web servers, and Spring Boot starters.</p>
+
+      <h3>1. Spring Boot Application Structure</h3>
+      <p>The basic structure of a Spring Boot application is simple and follows a convention over configuration philosophy. Here is a typical structure:</p>
+      <pre><code>
+/src
+    /main
+        /java
+            /com
+                /example
+                    /demo
+                        Application.java   <!-- Main application class -->
+        /resources
+            application.properties   <!-- Configuration file -->
+            /static  <!-- Static resources (JS, CSS, etc.) -->
+            /templates  <!-- Template files (HTML, Thymeleaf, etc.) -->
+    /test
+        /java
+            /com
+                /example
+                    /demo
+                        ApplicationTests.java  <!-- Unit tests -->
+      </code></pre>
+
+      <h3>2. Anatomy of a Spring Boot Application</h3>
+      <p>A Spring Boot application typically includes the following components:</p>
+      <ul>
+        <li><strong>Application Class:</strong> The class annotated with <code>@SpringBootApplication</code> that serves as the entry point for the application.</li>
+        <li><strong>Configuration File:</strong> <code>application.properties</code> or <code>application.yml</code> for externalized configuration.</li>
+        <li><strong>Controller Class:</strong> Handles HTTP requests and returns responses, typically annotated with <code>@RestController</code>.</li>
+        <li><strong>Service Class:</strong> Contains business logic and interacts with repositories or databases.</li>
+        <li><strong>Repository Class:</strong> Manages data access, typically using Spring Data JPA or similar frameworks.</li>
+      </ul>
+
+      <h3>3. Main Application Class with <code>@SpringBootApplication</code> Annotation</h3>
+      <p>The <code>@SpringBootApplication</code> annotation is a combination of three important annotations:</p>
+      <ul>
+        <li><code>@Configuration</code>: Indicates that this class contains configuration settings.</li>
+        <li><code>@EnableAutoConfiguration</code>: Tells Spring Boot to automatically configure the application based on the dependencies in the classpath.</li>
+        <li><code>@ComponentScan</code>: Enables component scanning so that Spring Boot can find and register beans.</li>
+      </ul>
+      <pre><code>
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);  // Launch the application
+    }
+}
+      </code></pre>
+
+      <p>This <code>Application</code> class is the entry point for the Spring Boot application. The <code>SpringApplication.run()</code> method starts the embedded web server and loads the Spring application context.</p>
+
+      <h3>4. Embedded Web Server (Tomcat/Jetty)</h3>
+      <p>Spring Boot comes with embedded web servers like Tomcat, Jetty, and Undertow, so you don't need to install a separate web server. By default, Spring Boot uses Tomcat as the embedded web server.</p>
+      <p>Spring Boot automatically configures the embedded web server based on the application’s dependencies.</p>
+
+      <h4>Example of Embedded Web Server:</h4>
+      <p>When you create a Spring Boot application, an embedded Tomcat server is automatically configured. You can override this configuration by adding another embedded server, such as Jetty:</p>
+      <pre><code>
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-jetty'  // Use Jetty instead of Tomcat
+}
+      </code></pre>
+
+      <h3>5. Working with Embedded Servers</h3>
+      <p>Spring Boot automatically starts the embedded server when the application is launched. For example, using Tomcat, the default port for the application is <code>8080</code>.</p>
+      <p>If you want to change the port or other server settings, you can do so in the <code>application.properties</code> file:</p>
+      <pre><code>
+server.port=9090  <!-- Change the default port -->
+      </code></pre>
+      <p>When you run the application, the embedded server listens on the specified port and serves the application.</p>
+
+      <h3>6. Spring Boot Starters</h3>
+      <p>Spring Boot Starters are pre-configured templates or dependencies that simplify adding specific functionalities to your Spring Boot applications. These starters bundle together the dependencies required for specific tasks such as building web applications or working with databases.</p>
+
+      <h4>What are Starters?</h4>
+      <p>Starters are a set of dependencies that you can add to your project for specific functionality. For example:</p>
+      <ul>
+        <li><strong>spring-boot-starter-web</strong>: For building web applications (RESTful services).</li>
+        <li><strong>spring-boot-starter-data-jpa</strong>: For working with relational databases using Spring Data JPA.</li>
+        <li><strong>spring-boot-starter-security</strong>: For adding security to your application.</li>
+      </ul>
+
+      <h4>Commonly Used Starters:</h4>
+      <ul>
+        <li><strong>spring-boot-starter-web:</strong> Provides everything needed to build a web application, including Tomcat and Spring MVC.</li>
+        <li><strong>spring-boot-starter-data-jpa:</strong> Enables integration with relational databases and ORM frameworks like Hibernate.</li>
+        <li><strong>spring-boot-starter-security:</strong> Provides default security configurations for applications, including authentication and authorization.</li>
+        <li><strong>spring-boot-starter-thymeleaf:</strong> For integrating Thymeleaf as the template engine for web applications.</li>
+      </ul>
+
+      <h4>Example: Adding Starters in <code>pom.xml</code></h4>
+      <pre><code>
+      &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+      &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+      </code></pre>
+      <p>These starters allow you to quickly get up and running with web development, database interaction, and more.</p>
+
+    </section>
+  </main>
+   
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

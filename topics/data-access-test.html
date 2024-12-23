@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testing Data Access Layer with @DataJpaTest</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Testing Data Access Layer with @DataJpaTest</h2>
+      <p>Unit testing the data access layer (DAL) ensures that database interactions, such as queries and CRUD operations, work as expected. Spring Boot provides a powerful annotation called <code>@DataJpaTest</code> to test JPA repositories, which simplifies the process by configuring an in-memory database for testing.</p>
+
+      <!-- Section: Introduction to @DataJpaTest -->
+      <section>
+        <h3>1. Introduction to @DataJpaTest</h3>
+        <p>The <code>@DataJpaTest</code> annotation is used to test the repository layer in Spring Boot applications. It is a specialized version of the <code>@SpringBootTest</code> annotation that focuses on JPA components, such as repositories, entities, and database interactions. By default, it configures an embedded database (like H2) for testing purposes.</p>
+
+        <h4>1.1. Basic Configuration</h4>
+        <p>The <code>@DataJpaTest</code> annotation will automatically configure the following for you:</p>
+        <ul>
+          <li>In-memory database (H2 by default).</li>
+          <li>JPA/Hibernate configurations.</li>
+          <li>Repositories such as <code>CrudRepository</code>, <code>JpaRepository</code>, and custom repository interfaces.</li>
+        </ul>
+
+        <p>However, it does not load the full Spring context, so it is faster than a full application context test.</p>
+
+        <pre><code>
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+@DataJpaTest
+public class EmployeeRepositoryTest {
+    // Test methods will go here
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Example of Testing Repositories -->
+      <section>
+        <h3>2. Example: Unit Testing Repositories with @DataJpaTest</h3>
+        <p>Let's assume we have an <code>EmployeeRepository</code> that interacts with a database to store and retrieve employee information. Here's how to write a unit test for this repository using <code>@DataJpaTest</code>.</p>
+
+        <pre><code>
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import static org.junit.jupiter.api.Assertions.*;
+
+@DataJpaTest
+public class EmployeeRepositoryTest {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Test
+    void testFindByName() {
+        // Arrange: Create and save a sample employee
+        Employee employee = new Employee("John Doe", "Engineering", 50000.0);
+        employeeRepository.save(employee);
+
+        // Act: Retrieve employee by name
+        Employee result = employeeRepository.findByName("John Doe");
+
+        // Assert: Verify the retrieved employee matches the expected data
+        assertNotNull(result);
+        assertEquals("John Doe", result.getName());
+        assertEquals("Engineering", result.getDepartment());
+        assertEquals(50000.0, result.getSalary());
+    }
+}
+        </code></pre>
+
+        <h4>Explanation of Annotations:</h4>
+        <ul>
+          <li><strong>@DataJpaTest</strong>: Automatically configures the in-memory database and JPA repositories for testing.</li>
+          <li><strong>@Autowired</strong>: Injects the repository into the test class for testing.</li>
+          <li><strong>@Test</strong>: Marks the method as a unit test that will be executed by JUnit.</li>
+        </ul>
+
+        <h4>2.1. Example Repository</h4>
+        <p>Here's an example of the <code>EmployeeRepository</code> interface:</p>
+        <pre><code>
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+    Employee findByName(String name);
+}
+        </code></pre>
+
+        <p>In the above example, the <code>EmployeeRepository</code> extends <code>JpaRepository</code> and provides a custom method <code>findByName</code> to query the database for an employee by their name.</p>
+      </section>
+
+      <!-- Section: Handling Relationships in Repositories -->
+      <section>
+        <h3>3. Handling Relationships in Repositories</h3>
+        <p>When dealing with relationships between entities (e.g., one-to-many, many-to-one), you can use repositories to test data retrieval and manipulation for these related entities as well. Here's how you can write tests for entities with relationships.</p>
+
+        <h4>3.1. Example: One-to-Many Relationship</h4>
+        <p>Suppose you have an <code>Employee</code> entity with a one-to-many relationship to the <code>Project</code> entity:</p>
+
+        <pre><code>
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String department;
+    private double salary;
+
+    @OneToMany(mappedBy = "employee")
+    private List<Project> projects;
+
+    // Getters and setters
+}
+
+@Entity
+public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String projectName;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
+    // Getters and setters
+}
+        </code></pre>
+
+        <h4>3.2. Unit Test for One-to-Many Relationship</h4>
+        <pre><code>
+@DataJpaTest
+public class EmployeeRepositoryTest {
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private ProjectRepository projectRepository;
+
+    @Test
+    void testEmployeeWithProjects() {
+        // Arrange: Create and save an employee with projects
+        Employee employee = new Employee("John Doe", "Engineering", 50000.0);
+        Project project1 = new Project("Project A", employee);
+        Project project2 = new Project("Project B", employee);
+        employeeRepository.save(employee);
+        projectRepository.save(project1);
+        projectRepository.save(project2);
+
+        // Act: Retrieve the employee and its projects
+        Employee result = employeeRepository.findByName("John Doe");
+
+        // Assert: Verify the employee has the correct projects
+        assertNotNull(result);
+        assertEquals(2, result.getProjects().size());
+    }
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>4. Summary</h3>
+        <p>Unit testing the data access layer ensures that the database interactions and repository methods work as expected. With <code>@DataJpaTest</code>, you can easily test repositories in Spring Boot, including those that interact with relationships between entities. It provides a fast and reliable way to validate the correctness of your repository layer.</p>
+
+        <ul>
+          <li><strong>@DataJpaTest</strong> is specifically designed for testing JPA repositories and interactions with an in-memory database.</li>
+          <li>Unit tests for repositories can verify CRUD operations and custom queries.</li>
+          <li>Unit tests can also be written for handling relationships between entities, such as one-to-many and many-to-one relationships.</li>
+        </ul>
+      </section>
+    </section>
+  </main>
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>

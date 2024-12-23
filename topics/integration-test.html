@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integration Testing with @SpringBootTest</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Placeholder for Header -->
+  <div id="header-container"></div>
+
+  <main>
+    <section>
+      <h2>Integration Testing with @SpringBootTest</h2>
+      <p>Integration testing ensures that the different parts of the application work together as expected. In Spring Boot, integration tests can be done using the <code>@SpringBootTest</code> annotation, which starts the entire Spring context for testing.</p>
+
+      <!-- Section: Overview of @SpringBootTest -->
+      <section>
+        <h3>1. Overview of @SpringBootTest</h3>
+        <p><code>@SpringBootTest</code> is a Spring annotation used to create integration tests that start the full Spring application context. It is typically used for tests that require Spring's entire context, such as testing the interaction between multiple components like services, controllers, and repositories.</p>
+        
+        <h4>1.1. Setting Up @SpringBootTest</h4>
+        <p>To use <code>@SpringBootTest</code>, you need to annotate your test class with this annotation. It will automatically set up the Spring context for your tests.</p>
+        <pre><code>
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+public class MyIntegrationTest {
+
+    @Test
+    void contextLoads() {
+        // Test logic here
+    }
+}
+        </code></pre>
+
+        <h4>1.2. Loading the Application Context</h4>
+        <p>By default, <code>@SpringBootTest</code> loads the application context and injects the necessary beans for testing. You can also configure which parts of the context you want to load using the <code>webEnvironment</code> attribute.</p>
+        <pre><code>
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class MyIntegrationTest {
+    // Test methods
+}
+        </code></pre>
+        <p>The <code>webEnvironment</code> attribute can be configured to either use a random port for the embedded web server or use the default port.</p>
+      </section>
+
+      <!-- Section: Integration Testing for REST APIs using TestRestTemplate -->
+      <section>
+        <h3>2. Integration Testing for REST APIs using TestRestTemplate</h3>
+        <p><code>TestRestTemplate</code> is a convenient tool for testing REST APIs in Spring Boot applications. It can be used to send HTTP requests to the server and validate the responses in an integration test.</p>
+
+        <h4>2.1. Using TestRestTemplate</h4>
+        <p>First, inject <code>TestRestTemplate</code> into your test class:</p>
+        <pre><code>
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class EmployeeControllerTest {
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Test
+    void testGetEmployeeById() {
+        // Send GET request and validate response
+        Employee employee = restTemplate.getForObject("/employees/1", Employee.class);
+        assertNotNull(employee);
+        assertEquals("John Doe", employee.getName());
+    }
+}
+        </code></pre>
+
+        <h4>2.2. Explanation of Methods</h4>
+        <ul>
+          <li><code>getForObject()</code>: Used for sending a GET request to a specific URL and converting the response into an object.</li>
+          <li><code>postForObject()</code>: Used for sending a POST request to a specific URL and returning a response.</li>
+          <li><code>put()</code>: Used for sending a PUT request to update data.</li>
+          <li><code>delete()</code>: Used for sending a DELETE request to delete a resource.</li>
+        </ul>
+      </section>
+
+      <!-- Section: Integration Testing for REST APIs using MockMvc -->
+      <section>
+        <h3>3. Integration Testing for REST APIs using MockMvc</h3>
+        <p><code>MockMvc</code> allows for testing controllers by simulating HTTP requests and verifying responses. It's typically used when you want to test the behavior of Spring MVC controllers without starting a full HTTP server.</p>
+
+        <h4>3.1. Setting Up MockMvc</h4>
+        <p>To use <code>MockMvc</code>, you can autowire it into your test class:</p>
+        <pre><code>
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.api.Test;
+
+@SpringBootTest
+public class EmployeeControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void testGetEmployeeById() throws Exception {
+        // Perform a GET request and assert the status and content
+        mockMvc.perform(get("/employees/1"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.name").value("John Doe"))
+               .andExpect(jsonPath("$.department").value("Engineering"));
+    }
+}
+        </code></pre>
+
+        <h4>3.2. MockMvc Setup and Methods</h4>
+        <ul>
+          <li><code>perform()</code>: Simulates an HTTP request.</li>
+          <li><code>andExpect()</code>: Verifies the expected result, such as status or response content.</li>
+          <li><code>get()</code>, <code>post()</code>, <code>put()</code>, <code>delete()</code>: Methods for performing HTTP requests.</li>
+        </ul>
+
+        <h4>3.3. Example: Testing a POST Request</h4>
+        <pre><code>
+@Test
+void testCreateEmployee() throws Exception {
+    Employee employee = new Employee("Jane Doe", "HR", 45000);
+    mockMvc.perform(post("/employees")
+            .contentType("application/json")
+            .content("{\"name\":\"Jane Doe\",\"department\":\"HR\",\"salary\":45000}"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.name").value("Jane Doe"));
+}
+        </code></pre>
+      </section>
+
+      <!-- Section: Summary -->
+      <section>
+        <h3>4. Summary</h3>
+        <p>Integration testing ensures that different components of the application work as expected together. We can perform integration tests for REST APIs using either <code>TestRestTemplate</code> or <code>MockMvc</code>, depending on the needs of our test.</p>
+        <ul>
+          <li><code>@SpringBootTest</code> provides a full context setup for integration testing.</li>
+          <li><code>TestRestTemplate</code> is suitable for testing HTTP requests and responses directly.</li>
+          <li><code>MockMvc</code> simulates HTTP requests and responses in a controller layer, without starting a full HTTP server.</li>
+        </ul>
+      </section>
+    </section>
+  </main>
+  <div id="footer-container"></div>
+  <script src="../js/scripts.js"></script>
+</body>
+</html>
